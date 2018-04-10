@@ -859,8 +859,73 @@
 
    </dependencyManagement>
 
+<dependencies>
+<dependency>
+  <groupId>org.powermock</groupId>
+  <artifactId>powermock-module-junit4</artifactId>
+  <version>1.6.6</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-all</artifactId>
+  <version>1.10.19</version>
+  <scope>test</scope>
+</dependency>
+    <dependency>
+      <groupId>com.diffblue</groupId>
+      <artifactId>deeptestutils</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+</dependencies>
+
    <!-- Build information -->
    <build>
+
+      <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven.surefire.plugin.version}</version>
+            <configuration>
+              <testFailureIgnore>true</testFailureIgnore>
+              <argLine>${argLine}</argLine>
+              <useUnlimitedThreads>true</useUnlimitedThreads>
+              <forkCount>1</forkCount>
+              <reuseForks>true</reuseForks>
+            </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.0</version>
+          <executions>
+            <execution>
+              <id>default-prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>2.18.1</version>
+          <configuration>
+            <aggregate>true</aggregate>
+            <showSuccess>true</showSuccess>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>test</phase>
+              <goals>
+                <goal>report-only</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
 
       <!-- Default versions of plugins. -->
       <pluginManagement>
@@ -932,16 +997,6 @@
                   <notimestamp>true</notimestamp>
                   <!-- This is needed in Java 8 to ensure strict Javadoc checking isn't enforced. -->
                   <additionalparam>-Xdoclint:none</additionalparam>
-               </configuration>
-            </plugin>
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-surefire-plugin</artifactId>
-               <version>${maven.surefire.plugin.version}</version>
-               <configuration>
-                  <argLine>-Xms512m -Xmx1500m</argLine>
-                  <useUnlimitedThreads>true</useUnlimitedThreads>
-                  <reuseForks>true</reuseForks>
                </configuration>
             </plugin>
             <plugin>
@@ -1300,6 +1355,7 @@
    <modules>
       <module>herd-build</module>
       <module>herd-code</module>
+      <module>diffblue-jacoco-report</module>
    </modules>
 
 </project>
