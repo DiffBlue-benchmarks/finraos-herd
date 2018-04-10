@@ -311,7 +311,7 @@
 
    <modules>
       <module>herd-model-api</module>
-      <module>herd-model-api-15</module>
+      <!--<module>herd-model-api-15</module>-->
       <module>herd-model</module>
       <module>herd-core</module>
       <module>herd-dao</module>
@@ -319,9 +319,9 @@
       <module>herd-ui</module>
       <module>herd-rest</module>
       <module>herd-app</module>
-      <module>herd-war</module>
+      <!--<module>herd-war</module>-->
       <module>herd-tools</module>
-      <module>herd-sdk</module>
+      <!---<module>herd-sdk</module>-->
    </modules>
 
 </project>
