@@ -35,9 +35,9 @@
 
    <modules>
       <module>herd-build-tools</module>
-      <module>herd-swaggergen-maven-plugin</module>
+      <!-- <module>herd-swaggergen-maven-plugin</module> -->
       <module>herd-scripts</module>
-      <module>herd-docs</module>
+      <!-- <module>herd-docs</module> -->
    </modules>
 
 </project>
