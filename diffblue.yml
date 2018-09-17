@@ -1,1 +1,22 @@
-ignoreExistingCoverage: true
+# Tested on Deeptest release 1.4.0 - 1.5.0
+cbmcArguments:
+phases:
+-
+  timeout: 60
+  cbmcArguments:
+    unwind: 1
+    depth: false
+    java-assume-inputs-non-null: true
+    max-nondet-string-length: 20
+-
+  timeout: 120
+  cbmcArguments:
+    unwind: 2
+    depth: false
+    max-nondet-string-length: 20
+-
+  timeout: 300
+  cbmcArguments:
+    unwind: 5
+    depth: false
+    max-nondet-string-length: 20
