@@ -13,30 +13,30 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package org.finra.herd.rest;
-
-import java.beans.PropertyEditorSupport;
+package org.finra.herd.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import org.finra.herd.dao.helper.HerdStringHelper;
+import org.finra.herd.model.jpa.SecurityFunctionEntity;
 
-/**
- * Property editor for delimited field values.
- */
 @Component
-public class DelimitedFieldValuesEditor extends PropertyEditorSupport
+public class SecurityFunctionDaoTestHelper
 {
     @Autowired
-    private HerdStringHelper herdStringHelper;
+    private SecurityFunctionDao securityFunctionDao;
 
-    @Override
-    public void setAsText(String text) throws IllegalArgumentException
+    /**
+     * Creates and persists a security function entity.
+     *
+     * @param code the name of the security function name
+     *
+     * @return the security function entity
+     */
+    public SecurityFunctionEntity createSecurityFunctionEntity(String code)
     {
-        DelimitedFieldValues delimitedFieldValues = new DelimitedFieldValues();
-        delimitedFieldValues.setDelimitedValues(text);
-        delimitedFieldValues.setValues(herdStringHelper.splitStringWithDefaultDelimiterEscaped(text));
-        setValue(delimitedFieldValues);
+        SecurityFunctionEntity securityFunctionEntity = new SecurityFunctionEntity();
+        securityFunctionEntity.setCode(code);
+        return securityFunctionDao.saveAndRefresh(securityFunctionEntity);
     }
 }

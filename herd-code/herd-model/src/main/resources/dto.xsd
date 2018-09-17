@@ -100,7 +100,7 @@
          <xs:element name="newStorageUnitStatus" type="xs:string" minOccurs="0"/>
          <xs:element name="oldStorageUnitStatus" type="xs:string" minOccurs="0"/>
          <xs:element name="storageFiles" type="storageFile" minOccurs="0" maxOccurs="unbounded"/>
-         <xs:element name="exception" type="exception" minOccurs="0"/>
+         <xs:element name="exception" type="runtimeException" minOccurs="0"/>
       </xs:sequence>
    </xs:complexType>
 
@@ -122,6 +122,14 @@
       </xs:complexContent>
    </xs:complexType>
 
+   <xs:complexType name="businessObjectDataStorageUnitKey">
+      <xs:annotation>
+         <xs:appinfo>
+            <jaxb:class ref="org.finra.herd.model.api.xml.BusinessObjectDataStorageUnitKey"/>
+         </xs:appinfo>
+      </xs:annotation>
+   </xs:complexType>
+
    <!-- This object is used to parse Elasticsearch responses. Do not modify this DTO unless there are changes done to the relative Elasticsearch index. -->
    <xs:complexType name="businessObjectDefinitionIndexSearchResponseDto">
       <xs:sequence>
@@ -139,6 +147,14 @@
          <xs:element name="fileName" type="xs:string" minOccurs="0"/>
          <xs:element name="fileSize" type="xs:long" minOccurs="0"/>
       </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectFormat">
+      <xs:annotation>
+         <xs:appinfo>
+            <jaxb:class ref="org.finra.herd.model.api.xml.BusinessObjectFormat"/>
+         </xs:appinfo>
+      </xs:annotation>
    </xs:complexType>
 
    <xs:complexType name="completeUploadSingleParamsDto">
@@ -236,14 +252,6 @@
          <xs:element name="corePrice" type="ec2PriceDto" minOccurs="0"/>
          <xs:element name="taskPrice" type="ec2PriceDto" minOccurs="0"/>
       </xs:sequence>
-   </xs:complexType>
-
-   <xs:complexType name="exception">
-      <xs:annotation>
-         <xs:appinfo>
-            <jaxb:class ref="java.lang.Exception"/>
-         </xs:appinfo>
-      </xs:annotation>
    </xs:complexType>
 
    <xs:simpleType name="facetTypeEnum">
@@ -344,9 +352,11 @@
 
    <xs:complexType name="regServerAccessParamsDto">
       <xs:sequence>
+         <xs:element name="disableHostnameVerification" type="xs:boolean" minOccurs="0"/>
          <xs:element name="password" type="xs:string" minOccurs="0"/>
          <xs:element name="regServerHost" type="xs:string" minOccurs="0"/>
          <xs:element name="regServerPort" type="xs:int" minOccurs="0"/>
+         <xs:element name="trustSelfSignedCertificate" type="xs:boolean" minOccurs="0"/>
          <xs:element name="useSsl" type="xs:boolean" minOccurs="0"/>
          <xs:element name="username" type="xs:string" minOccurs="0"/>
       </xs:sequence>
@@ -360,12 +370,30 @@
       </xs:sequence>
    </xs:complexType>
 
+   <xs:complexType name="relationalTableRegistrationDto">
+      <xs:sequence>
+         <xs:element name="storageUnitKey" type="businessObjectDataStorageUnitKey" minOccurs="0"/>
+         <xs:element name="relationalStorageAttributes" type="relationalStorageAttributesDto" minOccurs="0"/>
+         <xs:element name="relationalSchemaName" type="xs:string" minOccurs="0"/>
+         <xs:element name="relationalTableName" type="xs:string" minOccurs="0"/>
+         <xs:element name="businessObjectFormat" type="businessObjectFormat" minOccurs="0"/>
+      </xs:sequence>
+   </xs:complexType>
+
    <xs:complexType name="resultTypeIndexSearchResponseDto">
       <xs:sequence>
          <xs:element name="resultTypeCode" type="xs:string" minOccurs="0"/>
          <xs:element name="count" type="xs:long"/>
          <xs:element name="resultTypeDisplayName" type="xs:string" minOccurs="0"/>
       </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="runtimeException">
+      <xs:annotation>
+         <xs:appinfo>
+            <jaxb:class ref="java.lang.RuntimeException"/>
+         </xs:appinfo>
+      </xs:annotation>
    </xs:complexType>
 
    <xs:complexType name="s3FileCopyRequestParamsDto">

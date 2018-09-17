@@ -21,11 +21,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 
 import org.finra.herd.dao.config.DaoSpringModuleConfig;
+import org.finra.herd.model.api.xml.SecurityRoleKey;
 import org.finra.herd.model.jpa.SecurityRoleEntity;
 
 public class SecurityRoleDaoTest extends AbstractDaoTest
@@ -74,4 +77,36 @@ public class SecurityRoleDaoTest extends AbstractDaoTest
         assertTrue(securityRoleEntities.indexOf(testSecurityRoleEntities.get(1)) > securityRoleEntities.indexOf(testSecurityRoleEntities.get(0)));
     }
 
+    @Test
+    public void testGetSecurityRoleByName()
+    {
+        // Create a security role entity.
+        SecurityRoleEntity securityRoleEntity = securityRoleDaoTestHelper.createSecurityRoleEntity(SECURITY_ROLE, DESCRIPTION);
+
+        // Retrieve the security role entity.
+        assertEquals(securityRoleEntity, securityRoleDao.getSecurityRoleByName(SECURITY_ROLE));
+
+        // Test case insensitivity of security role name.
+        assertEquals(securityRoleEntity, securityRoleDao.getSecurityRoleByName(SECURITY_ROLE.toUpperCase()));
+        assertEquals(securityRoleEntity, securityRoleDao.getSecurityRoleByName(SECURITY_ROLE.toLowerCase()));
+    }
+
+    @Test
+    public void testGetSecurityRoleKeys()
+    {
+        // Create a list of security role keys.
+        final List<SecurityRoleKey> securityRoleKeys = ImmutableList.of(new SecurityRoleKey(SECURITY_ROLE), new SecurityRoleKey(SECURITY_ROLE_2));
+
+        // Create and persist security role entities in reverse order.
+        for (SecurityRoleKey securityRoleKey : Lists.reverse(securityRoleKeys))
+        {
+            securityRoleDaoTestHelper.createSecurityRoleEntity(securityRoleKey.getSecurityRoleName());
+        }
+
+        // Get all security roles registered in the system.
+        List<SecurityRoleKey> result = securityRoleDao.getSecurityRoleKeys();
+
+        // Validate the returned object.
+        assertEquals(securityRoleKeys, result);
+    }
 }

@@ -18,6 +18,7 @@ package org.finra.herd.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -38,12 +39,37 @@ public class SecurityFunctionDaoTest extends AbstractDaoTest
     private CacheManager cacheManager;
 
     @Test
+    public void testGetSecurityFunctionByName()
+    {
+        SecurityFunctionEntity securityFunctionEntity = securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION);
+        SecurityFunctionEntity securityFunction2Entity = securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION_2.toUpperCase());
+
+        // test the exact match
+        SecurityFunctionEntity searchResult = securityFunctionDao.getSecurityFunctionByName(SECURITY_FUNCTION);
+        assertEquals(securityFunctionEntity, searchResult);
+
+        // test that the security function name is case insensitive
+        searchResult = securityFunctionDao.getSecurityFunctionByName(SECURITY_FUNCTION_2.toLowerCase());
+        assertNotEquals(SECURITY_FUNCTION_2.toUpperCase(), SECURITY_FUNCTION_2.toLowerCase());
+        assertEquals(SECURITY_FUNCTION_2.toUpperCase(), searchResult.getCode());
+        assertEquals(securityFunction2Entity, searchResult);
+    }
+
+    @Test
+    public void testGetgetSecurityFunctionByNameNotExist()
+    {
+        securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION);
+
+        assertNull(securityFunctionDao.getSecurityFunctionByName(INVALID_VALUE));
+    }
+
+    @Test
     public void testGetSecurityFunctions() throws Exception
     {
         List<String> functions = securityFunctionDao.getSecurityFunctions();
 
         // Add a function in functions.
-        createSecurityFunctionEntity(SECURITY_FUNCTION);
+        securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION);
 
         List<String> functions2 = securityFunctionDao.getSecurityFunctions();
 
@@ -62,11 +88,11 @@ public class SecurityFunctionDaoTest extends AbstractDaoTest
     public void testGetSecurityFunctionsByRole() throws Exception
     {
         // Create role and function.
-        SecurityRoleEntity securityRoleEntity = createSecurityRoleEntity(SECURITY_ROLE_1);
-        SecurityFunctionEntity securityFunctionEntity = createSecurityFunctionEntity(SECURITY_FUNCTION);
+        SecurityRoleEntity securityRoleEntity = securityRoleDaoTestHelper.createSecurityRoleEntity(SECURITY_ROLE);
+        SecurityFunctionEntity securityFunctionEntity = securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION);
 
         // Validate that no security functions are returned for the role.
-        assertTrue(securityFunctionDao.getSecurityFunctionsForRole(SECURITY_ROLE_1).isEmpty());
+        assertTrue(securityFunctionDao.getSecurityFunctionsForRole(SECURITY_ROLE).isEmpty());
 
         // Add new role to functions mapping.
         SecurityRoleFunctionEntity securityRoleFunctionEntity = new SecurityRoleFunctionEntity();
@@ -75,23 +101,23 @@ public class SecurityFunctionDaoTest extends AbstractDaoTest
         herdDao.saveAndRefresh(securityRoleFunctionEntity);
 
         // Since the functions method is cached, the test function still will not be retrieved.
-        assertTrue(securityFunctionDao.getSecurityFunctionsForRole(SECURITY_ROLE_1).isEmpty());
+        assertTrue(securityFunctionDao.getSecurityFunctionsForRole(SECURITY_ROLE).isEmpty());
 
         // Clear the cache and retrieve the functions again.
         cacheManager.getCache(DaoSpringModuleConfig.HERD_CACHE_NAME).clear();
 
         // Validate that test security function mapped to the role is now retrieved.
-        assertEquals(Arrays.asList(SECURITY_FUNCTION), securityFunctionDao.getSecurityFunctionsForRole(SECURITY_ROLE_1));
+        assertEquals(Arrays.asList(SECURITY_FUNCTION), securityFunctionDao.getSecurityFunctionsForRole(SECURITY_ROLE));
     }
 
     @Test
     public void testGetUnrestrictedSecurityFunctions() throws Exception
     {
         // Create a role and two functions.
-        SecurityRoleEntity securityRoleEntity = createSecurityRoleEntity(SECURITY_ROLE_1);
-        List<SecurityFunctionEntity> securityFunctionEntities = Arrays
-            .asList(createSecurityFunctionEntity(SECURITY_FUNCTION_3), createSecurityFunctionEntity(SECURITY_FUNCTION_2),
-                createSecurityFunctionEntity(SECURITY_FUNCTION));
+        SecurityRoleEntity securityRoleEntity = securityRoleDaoTestHelper.createSecurityRoleEntity(SECURITY_ROLE);
+        List<SecurityFunctionEntity> securityFunctionEntities = Arrays.asList(securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION_3),
+            securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION_2),
+            securityFunctionDaoTestHelper.createSecurityFunctionEntity(SECURITY_FUNCTION));
 
         // Retrieve a list of unrestricted functions.
         List<String> resultSecurityFunctions = securityFunctionDao.getUnrestrictedSecurityFunctions();
@@ -129,33 +155,5 @@ public class SecurityFunctionDaoTest extends AbstractDaoTest
         assertTrue(resultSecurityFunctions.contains(SECURITY_FUNCTION));
         assertTrue(resultSecurityFunctions.contains(SECURITY_FUNCTION_2));
         assertFalse(resultSecurityFunctions.contains(SECURITY_FUNCTION_3));
-    }
-
-    /**
-     * Creates and persists a security function entity.
-     *
-     * @param code the name of the security function role
-     *
-     * @return the security role entity
-     */
-    private SecurityFunctionEntity createSecurityFunctionEntity(String code)
-    {
-        SecurityFunctionEntity securityFunctionEntity = new SecurityFunctionEntity();
-        securityFunctionEntity.setCode(code);
-        return herdDao.saveAndRefresh(securityFunctionEntity);
-    }
-
-    /**
-     * Creates and persists a security role entity.
-     *
-     * @param code the name of the security role
-     *
-     * @return the security role entity
-     */
-    private SecurityRoleEntity createSecurityRoleEntity(String code)
-    {
-        SecurityRoleEntity securityRoleEntity = new SecurityRoleEntity();
-        securityRoleEntity.setCode(code);
-        return herdDao.saveAndRefresh(securityRoleEntity);
     }
 }

@@ -62,6 +62,41 @@ import org.finra.herd.model.jpa.StorageUnitStatusEntity_;
 public class StorageUnitDaoImpl extends AbstractHerdDao implements StorageUnitDao
 {
     @Override
+    public List<StorageUnitEntity> getLatestVersionStorageUnitsByStoragePlatformAndFileType(String storagePlatform, String businessObjectFormatFileType)
+    {
+        // Create the criteria builder and the criteria.
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<StorageUnitEntity> criteria = builder.createQuery(StorageUnitEntity.class);
+
+        // The criteria root is the storage unit.
+        Root<StorageUnitEntity> storageUnitEntityRoot = criteria.from(StorageUnitEntity.class);
+
+        // Join to the other tables we can filter on.
+        Join<StorageUnitEntity, StorageEntity> storageEntityJoin = storageUnitEntityRoot.join(StorageUnitEntity_.storage);
+        Join<StorageEntity, StoragePlatformEntity> storagePlatformEntityJoin = storageEntityJoin.join(StorageEntity_.storagePlatform);
+        Join<StorageUnitEntity, BusinessObjectDataEntity> businessObjectDataEntityJoin = storageUnitEntityRoot.join(StorageUnitEntity_.businessObjectData);
+        Join<BusinessObjectDataEntity, BusinessObjectFormatEntity> businessObjectFormatEntityJoin =
+            businessObjectDataEntityJoin.join(BusinessObjectDataEntity_.businessObjectFormat);
+        Join<BusinessObjectFormatEntity, FileTypeEntity> fileTypeEntityJoin = businessObjectFormatEntityJoin.join(BusinessObjectFormatEntity_.fileType);
+
+        // Create the standard restrictions (i.e. the standard where clauses).
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(builder.upper(storagePlatformEntityJoin.get(StoragePlatformEntity_.name)), storagePlatform.toUpperCase()));
+        predicates.add(builder.equal(builder.upper(fileTypeEntityJoin.get(FileTypeEntity_.code)), businessObjectFormatFileType.toUpperCase()));
+        predicates.add(builder.isTrue(businessObjectFormatEntityJoin.get(BusinessObjectFormatEntity_.latestVersion)));
+        predicates.add(builder.isTrue(businessObjectDataEntityJoin.get(BusinessObjectDataEntity_.latestVersion)));
+
+        // Order by storage unit created on timestamp.
+        Order orderBy = builder.asc(storageUnitEntityRoot.get(StorageUnitEntity_.createdOn));
+
+        // Add the clauses for the query.
+        criteria.select(storageUnitEntityRoot).where(builder.and(predicates.toArray(new Predicate[predicates.size()]))).orderBy(orderBy);
+
+        // Execute the query and return the results.
+        return entityManager.createQuery(criteria).getResultList();
+    }
+
+    @Override
     public List<StorageUnitEntity> getS3StorageUnitsToCleanup(int maxResult)
     {
         // Create the criteria builder and the criteria.
@@ -276,28 +311,26 @@ public class StorageUnitDaoImpl extends AbstractHerdDao implements StorageUnitDa
     }
 
     @Override
-    public StorageUnitEntity getStorageUnitByStorageNameAndDirectoryPath(String storageName, String directoryPath)
+    public StorageUnitEntity getStorageUnitByStorageAndDirectoryPath(StorageEntity storageEntity, String directoryPath)
     {
         // Create the criteria builder and the criteria.
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<StorageUnitEntity> criteria = builder.createQuery(StorageUnitEntity.class);
 
-        // The criteria root is the storage units.
-        Root<StorageUnitEntity> storageUnitEntity = criteria.from(StorageUnitEntity.class);
-
-        // Join to the other tables we can filter on.
-        Join<StorageUnitEntity, StorageEntity> storageEntity = storageUnitEntity.join(StorageUnitEntity_.storage);
+        // The criteria root is the storage unit.
+        Root<StorageUnitEntity> storageUnitEntityRoot = criteria.from(StorageUnitEntity.class);
 
         // Create the standard restrictions (i.e. the standard where clauses).
-        Predicate storageNameRestriction = builder.equal(builder.upper(storageEntity.get(StorageEntity_.name)), storageName.toUpperCase());
-        Predicate directoryPathRestriction = builder.equal(storageUnitEntity.get(StorageUnitEntity_.directoryPath), directoryPath);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(builder.equal(storageUnitEntityRoot.get(StorageUnitEntity_.storage), storageEntity));
+        predicates.add(builder.equal(storageUnitEntityRoot.get(StorageUnitEntity_.directoryPath), directoryPath));
 
-        criteria.select(storageUnitEntity).where(builder.and(storageNameRestriction, directoryPathRestriction));
+        // Add all clauses for the query.
+        criteria.select(storageUnitEntityRoot).where(builder.and(predicates.toArray(new Predicate[predicates.size()])));
 
-        List<StorageUnitEntity> resultList = entityManager.createQuery(criteria).getResultList();
-
-        // Return the first found storage unit or null if none were found.
-        return resultList.size() >= 1 ? resultList.get(0) : null;
+        // Execute the query and return the first found storage unit or null if none were found.
+        List<StorageUnitEntity> storageUnitEntities = entityManager.createQuery(criteria).getResultList();
+        return storageUnitEntities.size() >= 1 ? storageUnitEntities.get(0) : null;
     }
 
     @Override

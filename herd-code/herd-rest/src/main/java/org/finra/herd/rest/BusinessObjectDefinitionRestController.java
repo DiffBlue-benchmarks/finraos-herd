@@ -30,8 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.finra.herd.model.api.xml.BusinessObjectDefinition;
 import org.finra.herd.model.api.xml.BusinessObjectDefinitionCreateRequest;
 import org.finra.herd.model.api.xml.BusinessObjectDefinitionDescriptiveInformationUpdateRequest;
-import org.finra.herd.model.api.xml.BusinessObjectDefinitionIndexSearchRequest;
-import org.finra.herd.model.api.xml.BusinessObjectDefinitionIndexSearchResponse;
 import org.finra.herd.model.api.xml.BusinessObjectDefinitionKey;
 import org.finra.herd.model.api.xml.BusinessObjectDefinitionKeys;
 import org.finra.herd.model.api.xml.BusinessObjectDefinitionSearchRequest;
@@ -69,6 +67,17 @@ public class BusinessObjectDefinitionRestController extends HerdBaseController
     /**
      * Updates an existing business object definition by key. <p>Requires WRITE permission on namespace</p>
      *
+     * <p>
+     * If attributes are supplied in the request, this endpoint replaces the entire list of attributes on the business object definition with the contents
+     * of the request. Observe this example:
+     *   <ol>
+     *       <li>Three attributes present on the existing business object definition.</li>
+     *       <li>This endpoint is called with a single attribute in the request with an updated value.</li>
+     *       <li>After this operation the business object definition will have only one attribute – which is probably not the desired outcome.</li>
+     *       <li>Instead, supply all existing attributes and provide updated values and additional attributes as needed.
+     *       The only case when an existing attribute should be left out is to remove the attribute.</li>
+     *   </ol>
+     * </p>
      * @param namespace the namespace code
      * @param businessObjectDefinitionName the name of the business object definition to update
      * @param request the information needed to update the business object definition
@@ -187,23 +196,4 @@ public class BusinessObjectDefinitionRestController extends HerdBaseController
     {
         return businessObjectDefinitionService.searchBusinessObjectDefinitions(request, fields);
     }
-
-    /**
-     * Searches across all business object definitions that are in search index per specified search filters and keys
-     *
-     * @param fields A comma-separated list of fields to be retrieved with each business object definition entity. Valid options: dataProviderName,
-     * shortDescription, displayName
-     * @param request the information needed to search across the business object definitions
-     *
-     * @return the retrieved business object definition list
-     */
-    @RequestMapping(value = "/businessObjectDefinitions/indexSearch", method = RequestMethod.POST, consumes = {"application/xml", "application/json"})
-    @Secured(SecurityFunctions.FN_BUSINESS_OBJECT_DEFINITIONS_INDEX_SEARCH_POST)
-    public BusinessObjectDefinitionIndexSearchResponse indexSearchBusinessObjectDefinitions(
-        @RequestParam(value = "fields", required = false, defaultValue = "") Set<String> fields,
-        @RequestBody BusinessObjectDefinitionIndexSearchRequest request)
-    {
-        return businessObjectDefinitionService.indexSearchBusinessObjectDefinitions(request, fields);
-    }
-
 }

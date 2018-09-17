@@ -83,6 +83,9 @@ public class BusinessObjectFormatEntity extends AuditableEntity
     @Column(name = "desc_tx")
     private String description;
 
+    @Column(name = "doc_schm_tx")
+    private String documentSchema;
+
     @JsonManagedReference(value = "businessObjectFormat-attributes")
     @OneToMany(mappedBy = "businessObjectFormat", orphanRemoval = true, cascade = {CascadeType.ALL})
     @OrderBy("name")
@@ -116,8 +119,9 @@ public class BusinessObjectFormatEntity extends AuditableEntity
 
     // These are the parents (i.e. the data that was needed to create this data).
     @JsonIgnore
-    @JoinTable(name = "bus_objct_frmt_prnt", joinColumns = {@JoinColumn(name = TABLE_NAME + "_id", referencedColumnName = TABLE_NAME + "_id")},
-        inverseJoinColumns = {@JoinColumn(name = "prnt_bus_objct_frmt_id", referencedColumnName = TABLE_NAME + "_id")})
+    @JoinTable(name = "bus_objct_frmt_prnt", joinColumns = {
+        @JoinColumn(name = TABLE_NAME + "_id", referencedColumnName = TABLE_NAME + "_id")}, inverseJoinColumns = {
+        @JoinColumn(name = "prnt_bus_objct_frmt_id", referencedColumnName = TABLE_NAME + "_id")})
     @ManyToMany
     private List<BusinessObjectFormatEntity> businessObjectFormatParents;
 
@@ -129,6 +133,10 @@ public class BusinessObjectFormatEntity extends AuditableEntity
     @Column(name = "rec_fl", nullable = true)
     @Type(type = "yes_no")
     private Boolean recordFlag;
+
+    @Column(name = "alw_non_bckwrds_cmptbl_chgs_fl", nullable = true)
+    @Type(type = "yes_no")
+    private Boolean allowNonBackwardsCompatibleChanges;
 
     @Column(name = "rtntn_prd_days", nullable = true)
     private Integer retentionPeriodInDays;
@@ -335,5 +343,25 @@ public class BusinessObjectFormatEntity extends AuditableEntity
     public void setRetentionType(RetentionTypeEntity retentionType)
     {
         this.retentionType = retentionType;
+    }
+
+    public Boolean isAllowNonBackwardsCompatibleChanges()
+    {
+        return allowNonBackwardsCompatibleChanges;
+    }
+
+    public void setAllowNonBackwardsCompatibleChanges(Boolean allowNonBackwardsCompatibleChanges)
+    {
+        this.allowNonBackwardsCompatibleChanges = allowNonBackwardsCompatibleChanges;
+    }
+
+    public String getDocumentSchema()
+    {
+        return documentSchema;
+    }
+
+    public void setDocumentSchema(String documentSchema)
+    {
+        this.documentSchema = documentSchema;
     }
 }

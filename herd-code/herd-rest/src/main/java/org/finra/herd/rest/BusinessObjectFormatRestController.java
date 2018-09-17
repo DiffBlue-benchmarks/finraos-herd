@@ -39,6 +39,7 @@ import org.finra.herd.model.api.xml.BusinessObjectFormatKey;
 import org.finra.herd.model.api.xml.BusinessObjectFormatKeys;
 import org.finra.herd.model.api.xml.BusinessObjectFormatParentsUpdateRequest;
 import org.finra.herd.model.api.xml.BusinessObjectFormatRetentionInformationUpdateRequest;
+import org.finra.herd.model.api.xml.BusinessObjectFormatSchemaBackwardsCompatibilityUpdateRequest;
 import org.finra.herd.model.api.xml.BusinessObjectFormatUpdateRequest;
 import org.finra.herd.model.dto.SecurityFunctions;
 import org.finra.herd.service.BusinessObjectFormatService;
@@ -250,6 +251,17 @@ public class BusinessObjectFormatRestController extends HerdBaseController
     /**
      * Updates an existing business object format attributes by alternate key. <p>Requires WRITE permission on namespace</p>
      *
+     * <p>
+     * This endpoint replaces the entire list of attributes on the business object format with the contents of the request. Observe this example:
+     *   <ol>
+     *       <li>Three attributes present on the existing business object format.</li>
+     *       <li>This endpoint is called with a single attribute in the request with an updated value.</li>
+     *       <li>After this operation the business object format will have only one attribute – which is probably not the desired outcome.</li>
+     *       <li>Instead, supply all existing attributes and provide updated values and additional attributes as needed.
+     *       The only case when an existing attribute should be left out is to remove the attribute.</li>
+     *   </ol>
+     * </p>
+     *
      * @param namespace the namespace code
      * @param businessObjectDefinitionName the business object definition name
      * @param businessObjectFormatUsage the business object format usage
@@ -329,5 +341,32 @@ public class BusinessObjectFormatRestController extends HerdBaseController
         BusinessObjectFormatKey businessObjectFormatKey =
             new BusinessObjectFormatKey(namespace, businessObjectDefinitionName, businessObjectFormatUsage, businessObjectFormatFileType, null);
         return businessObjectFormatService.updateBusinessObjectFormatRetentionInformation(businessObjectFormatKey, request);
+    }
+
+    /**
+     * Updates an existing Business Object Format to allow non-backwards compatibility changes to the format schema based on the
+     * 'allowNonBackwardsCompatibleChanges' flag. <p>Requires WRITE permission on namespace</p>
+     *
+     * @param namespace the namespace code
+     * @param businessObjectDefinitionName the business object definition name
+     * @param businessObjectFormatUsage the business object format usage
+     * @param businessObjectFormatFileType the business object format file type
+     * @param request the information needed to update the business object format to allow non-backwards compatibility changes to the format schema
+     *
+     * @return the updated business object format.
+     */
+    @RequestMapping(value = "/businessObjectFormatSchemaBackwardsCompatibility/namespaces/{namespace}/businessObjectDefinitionNames/" +
+        "{businessObjectDefinitionName}/businessObjectFormatUsages/{businessObjectFormatUsage}/businessObjectFormatFileTypes/{businessObjectFormatFileType}",
+        method = RequestMethod.PUT, consumes = {"application/xml", "application/json"})
+    @Secured(SecurityFunctions.FN_BUSINESS_OBJECT_FORMAT_SCHEMA_BACKWARDS_COMPATIBILITY_PUT)
+    public BusinessObjectFormat updateBusinessObjectFormatSchemaBackwardsCompatibleChanges(@PathVariable("namespace") String namespace,
+        @PathVariable("businessObjectDefinitionName") String businessObjectDefinitionName,
+        @PathVariable("businessObjectFormatUsage") String businessObjectFormatUsage,
+        @PathVariable("businessObjectFormatFileType") String businessObjectFormatFileType,
+        @RequestBody BusinessObjectFormatSchemaBackwardsCompatibilityUpdateRequest request)
+    {
+        BusinessObjectFormatKey businessObjectFormatKey =
+            new BusinessObjectFormatKey(namespace, businessObjectDefinitionName, businessObjectFormatUsage, businessObjectFormatFileType, null);
+        return businessObjectFormatService.updateBusinessObjectFormatSchemaBackwardsCompatibilityChanges(businessObjectFormatKey, request);
     }
 }

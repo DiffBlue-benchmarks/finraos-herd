@@ -41,7 +41,7 @@ public class BusinessObjectDataSearchHelper
     private BusinessObjectDataHelper businessObjectDataHelper;
 
     @Autowired
-    protected ConfigurationHelper configurationHelper;
+    private ConfigurationHelper configurationHelper;
 
     /**
      * Validates a business object data search request.
@@ -111,14 +111,12 @@ public class BusinessObjectDataSearchHelper
 
         if (businessObjectDataSearchKey.getBusinessObjectFormatUsage() != null)
         {
-            businessObjectDataSearchKey.setBusinessObjectFormatUsage(
-                alternateKeyHelper.validateStringParameter("business object format usage", businessObjectDataSearchKey.getBusinessObjectFormatUsage()));
+            businessObjectDataSearchKey.setBusinessObjectFormatUsage(businessObjectDataSearchKey.getBusinessObjectFormatUsage().trim());
         }
 
         if (businessObjectDataSearchKey.getBusinessObjectFormatFileType() != null)
         {
-            businessObjectDataSearchKey.setBusinessObjectFormatFileType(
-                alternateKeyHelper.validateStringParameter("business object format file type", businessObjectDataSearchKey.getBusinessObjectFormatFileType()));
+            businessObjectDataSearchKey.setBusinessObjectFormatFileType(businessObjectDataSearchKey.getBusinessObjectFormatFileType().trim());
         }
 
         // Validate partition value filters, if specified.
@@ -139,6 +137,12 @@ public class BusinessObjectDataSearchHelper
                     throw new IllegalArgumentException("Only partition values or partition range are supported in partition value filter.");
                 }
             }
+        }
+
+        // Validate registration date range filter, if specified.
+        if (businessObjectDataSearchKey.getRegistrationDateRangeFilter() != null)
+        {
+            businessObjectDataHelper.validateRegistrationDateRangeFilter(businessObjectDataSearchKey.getRegistrationDateRangeFilter());
         }
 
         // Validate attribute value filters, if specified.

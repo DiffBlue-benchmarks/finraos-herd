@@ -321,17 +321,17 @@
                <xs:documentation>The user id</xs:documentation>
             </xs:annotation>
          </xs:element>
-         <xs:element name="namespaceAuthorizations" type="namespaceAuthorizations">
+         <xs:element name="namespaceAuthorizations" type="namespaceAuthorizations" minOccurs="0">
             <xs:annotation>
                <xs:documentation>The list of namespace authorizations</xs:documentation>
             </xs:annotation>
          </xs:element>
-         <xs:element name="securityRoles" type="securityRoles">
+         <xs:element name="securityRoles" type="securityRoles" minOccurs="0">
             <xs:annotation>
                <xs:documentation>The list of security roles</xs:documentation>
             </xs:annotation>
          </xs:element>
-         <xs:element name="securityFunctions" type="securityFunctions">
+         <xs:element name="securityFunctions" type="securityFunctions" minOccurs="0">
             <xs:annotation>
                <xs:documentation>The list of security functions</xs:documentation>
             </xs:annotation>
@@ -406,6 +406,127 @@
             </xs:annotation>
          </xs:element>
       </xs:sequence>
+   </xs:complexType>
+
+   <!-- ***** Security Role ***** -->
+
+   <xs:element name="securityRoleCreateRequest" type="securityRoleCreateRequest"/>
+   <xs:complexType name="securityRoleCreateRequest">
+      <xs:all>
+         <xs:element name="securityRoleName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The security role name</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="description" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>An optional description of this security role</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityRoleUpdateRequest" type="securityRoleUpdateRequest"/>
+   <xs:complexType name="securityRoleUpdateRequest">
+      <xs:all>
+         <xs:element name="description" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>An optional description of this security role</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityRole" type="securityRole"/>
+   <xs:complexType name="securityRole">
+      <xs:all>
+         <xs:element name="securityRoleName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The security role name</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="description" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>An optional description of this security role</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityRoleKeys" type="securityRoleKeys">
+      <xs:annotation>
+         <xs:documentation>The list of security role keys</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:complexType name="securityRoleKeys">
+      <xs:sequence>
+         <xs:element name="securityRoleKey" type="securityRoleKey" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>Value that uniquely identifies a security role</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="securityRoleKey">
+      <xs:all>
+         <xs:element name="securityRoleName" type="xs:string"/>
+      </xs:all>
+   </xs:complexType>
+
+   <!-- ***** Security Role To Function Mapping ***** -->
+
+   <xs:element name="securityRoleFunctionCreateRequest" type="securityRoleFunctionCreateRequest"/>
+   <xs:complexType name="securityRoleFunctionCreateRequest">
+      <xs:all>
+         <xs:element name="securityRoleFunctionKey" type="securityRoleFunctionKey">
+            <xs:annotation>
+               <xs:documentation>Values that uniquely identify a security role to function mapping</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityRoleFunction" type="securityRoleFunction"/>
+   <xs:complexType name="securityRoleFunction">
+      <xs:all>
+         <xs:element name="id" type="xs:int">
+            <xs:annotation>
+               <xs:documentation>The internal Id that uniquely references a security role to function mapping</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="securityRoleFunctionKey" type="securityRoleFunctionKey">
+            <xs:annotation>
+               <xs:documentation>Values that uniquely identify a security role to function mapping</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityRoleFunctionKeys" type="securityRoleFunctionKeys"/>
+   <xs:complexType name="securityRoleFunctionKeys">
+      <xs:sequence>
+         <xs:element name="securityRoleFunctionKey" type="securityRoleFunctionKey" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>Values that uniquely identify a security role to function mapping</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="securityRoleFunctionKey">
+      <xs:all>
+         <xs:element name="securityRoleName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The security role name</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="securityFunctionName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The security function name</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
    </xs:complexType>
 
    <!-- ***** User Namespace Authorization ***** -->
@@ -1259,29 +1380,6 @@
       </xs:annotation>
    </xs:element>
 
-   <xs:element name="businessObjectDefinitionIndexSearchRequest" type="businessObjectDefinitionIndexSearchRequest">
-      <xs:annotation>
-         <xs:documentation>A wrapper for business Object Definition indexed search request. The request accepts multiple search filters and a multiple search
-            keys
-         </xs:documentation>
-      </xs:annotation>
-   </xs:element>
-
-   <xs:complexType name="businessObjectDefinitionIndexSearchRequest">
-      <xs:all>
-         <xs:element name="businessObjectDefinitionSearchFilters" type="businessObjectDefinitionSearchFilters" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>A list of business Object Definition indexed search filters. Multiple search filters are supported</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-         <xs:element name="facetFields" type="facetFields" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>A list of Facet Fields to be included with the response. Only Tag facet information is supported</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-      </xs:all>
-   </xs:complexType>
-
    <xs:complexType name="businessObjectDefinitionSearchRequest">
       <xs:all>
          <xs:element name="businessObjectDefinitionSearchFilters" type="businessObjectDefinitionSearchFilters" minOccurs="0">
@@ -1355,33 +1453,6 @@
       </xs:all>
    </xs:complexType>
 
-   <xs:element name="businessObjectDefinitionIndexSearchResponse" type="businessObjectDefinitionIndexSearchResponse"/>
-   <xs:complexType name="businessObjectDefinitionIndexSearchResponse">
-      <xs:all>
-         <xs:element name="businessObjectDefinitions" type="businessObjectDefinitions" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>Values that identify a business object definition search response</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-         <xs:element name="facets" type="facets" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>Values that identifies a list of facet information response</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-      </xs:all>
-   </xs:complexType>
-
-   <xs:element name="facets" type="facets"/>
-   <xs:complexType name="facets">
-      <xs:sequence>
-         <xs:element name="facet" type="facet" minOccurs="0" maxOccurs="unbounded">
-            <xs:annotation>
-               <xs:documentation>facet information</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-      </xs:sequence>
-   </xs:complexType>
-
    <xs:element name="businessObjectDefinitions" type="businessObjectDefinitions"/>
    <xs:complexType name="businessObjectDefinitions">
       <xs:sequence>
@@ -1389,49 +1460,6 @@
          </xs:element>
       </xs:sequence>
    </xs:complexType>
-
-   <xs:complexType name="facetFields">
-      <xs:sequence>
-         <xs:element name="facetField" type="xs:string" minOccurs="0" maxOccurs="unbounded">
-            <xs:annotation>
-               <xs:documentation>The Facet field information to be included with the response. Only Tag facet field is supported.
-               </xs:documentation>
-            </xs:annotation>
-         </xs:element>
-      </xs:sequence>
-   </xs:complexType>
-
-   <xs:element name="facet" type="facet"/>
-   <xs:complexType name="facet">
-      <xs:all>
-         <xs:element name="facetDisplayName" type="xs:string" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>Display name of the facet</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-         <xs:element name="facetCount" type="xs:long" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>count of the facet</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-         <xs:element name="facetType" type="xs:string" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>Type of the facet</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-         <xs:element name="facetId" type="xs:string" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>unique identifier of the facet</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-         <xs:element name="facets" type="facets" minOccurs="0">
-            <xs:annotation>
-               <xs:documentation>list of facets</xs:documentation>
-            </xs:annotation>
-         </xs:element>
-      </xs:all>
-   </xs:complexType>
-
 
    <xs:element name="businessObjectDefinitionIndexResponse" type="businessObjectDefinitionIndexResponse"/>
    <xs:complexType name="businessObjectDefinitionIndexResponse">
@@ -1826,7 +1854,233 @@
       </xs:all>
    </xs:complexType>
 
+   <!-- ***** Business Object Definition Description Suggestion ***** -->
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestionCreateRequest" type="businessObjectDefinitionDescriptionSuggestionCreateRequest"/>
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionCreateRequest">
+      <xs:all>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionKey" type="businessObjectDefinitionDescriptionSuggestionKey">
+            <xs:annotation>
+               <xs:documentation>The business object definition description suggestion key</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="descriptionSuggestion" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The description suggestion</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestionUpdateRequest" type="businessObjectDefinitionDescriptionSuggestionUpdateRequest"/>
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionUpdateRequest">
+      <xs:all>
+         <xs:element name="descriptionSuggestion" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The description suggestion</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestion" type="businessObjectDefinitionDescriptionSuggestion"/>
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestion">
+      <xs:all>
+         <xs:element name="id" type="xs:int">
+            <xs:annotation>
+               <xs:documentation>A system unique ID of this business object definition description suggestion</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionKey" type="businessObjectDefinitionDescriptionSuggestionKey">
+            <xs:annotation>
+               <xs:documentation>The business object definition description suggestion key</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="descriptionSuggestion" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The description suggestion</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="status" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The status of the business object definition description suggestion. One of the following values: PENDING, ACCEPTED
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="createdByUserId" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The User ID of the user who created this business object definition description suggestion</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="createdOn" type="xs:dateTime" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The timestamp when this business object definition description suggestion was created on</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestionKeys" type="businessObjectDefinitionDescriptionSuggestionKeys"/>
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionKeys">
+      <xs:sequence>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionKey" type="businessObjectDefinitionDescriptionSuggestionKey" minOccurs="0"
+                     maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>The business object definition description suggestion key</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionKey">
+      <xs:all>
+         <xs:element name="namespace" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The namespace</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="businessObjectDefinitionName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The name of the Business Object Definition to which this description suggestion is related</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="userId" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The user id</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestionSearchRequest" type="businessObjectDefinitionDescriptionSuggestionSearchRequest">
+      <xs:annotation>
+         <xs:documentation>A wrapper for a business object definition description suggestion search request. The request will accept only a single search
+            filter and a single search key
+         </xs:documentation>
+      </xs:annotation>
+   </xs:element>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionSearchRequest">
+      <xs:sequence>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionSearchFilters" type="businessObjectDefinitionDescriptionSuggestionSearchFilters">
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionSearchFilters">
+      <xs:sequence>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionSearchFilter" type="businessObjectDefinitionDescriptionSuggestionSearchFilter"
+                     minOccurs="1" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>A business object definition description suggestion search filter</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionSearchFilter">
+      <xs:sequence>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionSearchKeys" type="businessObjectDefinitionDescriptionSuggestionSearchKeys">
+            <xs:annotation>
+               <xs:documentation>A list of business object definition description suggestion search keys. Only a single search key is supported
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionSearchKeys">
+      <xs:sequence>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionSearchKey" type="businessObjectDefinitionDescriptionSuggestionSearchKey" minOccurs="1"
+                     maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>A business object definition description suggestion search key</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionSearchKey">
+      <xs:all>
+         <xs:element name="namespace" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The namespace to which a business object definition description suggestion is related</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="businessObjectDefinitionName" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The name of the business object definition to which a business object definition description suggestion is related
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="status" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The status code of the business object definition description suggestion</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestionSearchResponse" type="businessObjectDefinitionDescriptionSuggestionSearchResponse">
+      <xs:annotation>
+         <xs:documentation>A wrapper for business object definition description suggestion search response</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionSearchResponse">
+      <xs:all>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestions" type="businessObjectDefinitionDescriptionSuggestions">
+            <xs:annotation>
+               <xs:documentation>An list of business object definition description suggestions</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestions">
+      <xs:sequence>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestion" type="businessObjectDefinitionDescriptionSuggestion" minOccurs="0"
+                     maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>A wrapper for business object definition description suggestion information</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:element name="businessObjectDefinitionDescriptionSuggestionAcceptanceRequest" type="businessObjectDefinitionDescriptionSuggestionAcceptanceRequest"/>
+   <xs:complexType name="businessObjectDefinitionDescriptionSuggestionAcceptanceRequest">
+      <xs:all>
+         <xs:element name="businessObjectDefinitionDescriptionSuggestionKey" type="businessObjectDefinitionDescriptionSuggestionKey">
+            <xs:annotation>
+               <xs:documentation>The business object definition description suggestion key</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
    <!-- ***** File Type ***** -->
+   <xs:element name="fileTypeCreateRequest" type="fileTypeCreateRequest"/>
+   <xs:complexType name="fileTypeCreateRequest">
+      <xs:all>
+         <xs:element name="fileTypeCode" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The file type code</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="fileType" type="fileType"/>
+   <xs:complexType name="fileType">
+      <xs:all>
+         <xs:element name="fileTypeCode" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The file type code</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
 
    <xs:element name="fileTypeKeys" type="fileTypeKeys"/>
    <xs:complexType name="fileTypeKeys">
@@ -2019,10 +2273,19 @@
                <xs:documentation>Description of the Business Object Format</xs:documentation>
             </xs:annotation>
          </xs:element>
+         <xs:element name="documentSchema" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The schema for document-style business object data registered with Herd.
+                  The schema allows the publisher to perform self-service validation of incoming data when registering business object data. It also allows
+                  the consumers to perform self-service downstream actions like hydrating objects when consuming business object data. The documentSchema is
+                  optional. Currently any documentSchema is accepted. Its content is not validated
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
          <xs:element name="attributes" type="attributes" minOccurs="0">
             <xs:annotation>
                <xs:documentation>Custom user-defined metadata associated with this Business Object Format. "name" is the attribute name (i.e. the key) and
-                  "value" is the attribute value.
+                  "value" is the attribute value
                </xs:documentation>
             </xs:annotation>
          </xs:element>
@@ -2071,10 +2334,19 @@
                <xs:documentation>Description of the Business Object Format</xs:documentation>
             </xs:annotation>
          </xs:element>
+         <xs:element name="documentSchema" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The schema for document-style business object data registered with Herd. The schema allows the publisher to perform
+                  self-service validation of incoming data when registering business object data. It also allows the consumers to perform self-service downstream
+                  actions like hydrating objects when consuming business object data. The documentSchema is optional. Currently any documentSchema is accepted.
+                  Its content is not validated
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
          <xs:element name="attributes" type="attributes" minOccurs="0">
             <xs:annotation>
                <xs:documentation>Custom user-defined metadata associated with this Business Object Format. "name" is the attribute name (i.e. the key) and
-                  "value" is the attribute value.
+                  "value" is the attribute value
                </xs:documentation>
             </xs:annotation>
          </xs:element>
@@ -2141,13 +2413,31 @@
          </xs:element>
          <xs:element name="retentionPeriodInDays" type="xs:int" minOccurs="0">
             <xs:annotation>
-               <xs:documentation>Retention period (in days) for business object data registered with this format
+               <xs:documentation>Retention period (in days) for business object data registered with this format. This value must only be specified for
+                  PARTITION_VALUE retention type
                </xs:documentation>
             </xs:annotation>
          </xs:element>
          <xs:element name="retentionType" type="xs:string" minOccurs="0">
             <xs:annotation>
-               <xs:documentation>Retention type. Supported retention types: PARTITION_VALUE
+               <xs:documentation>Retention type. Supported retention types are: PARTITION_VALUE, BDATA_RETENTION_DATE
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="businessObjectFormatSchemaBackwardsCompatibilityUpdateRequest" type="businessObjectFormatSchemaBackwardsCompatibilityUpdateRequest"/>
+   <xs:complexType name="businessObjectFormatSchemaBackwardsCompatibilityUpdateRequest">
+      <xs:all>
+         <xs:element name="allowNonBackwardsCompatibleChanges" type="xs:boolean" minOccurs="0">
+            <!--
+             This is required, but is left as optional here so the auto-generated object becomes "Boolean" and not "boolean".
+             That way, JSON objects that deserialize into the auto-generated object don't use the default int value of "false" and instead will leave
+             the field as null. The validation that this field is required is handled via the service layer validation.
+            -->
+            <xs:annotation>
+               <xs:documentation>If true, allows non backwards compatible changes to the schema
                </xs:documentation>
             </xs:annotation>
          </xs:element>
@@ -2209,6 +2499,11 @@
                <xs:documentation>Description of the Business Object Format</xs:documentation>
             </xs:annotation>
          </xs:element>
+         <xs:element name="documentSchema" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The schema for document-style business object data registered with Herd</xs:documentation>
+            </xs:annotation>
+         </xs:element>
          <xs:element name="attributes" type="attributes" minOccurs="0">
             <xs:annotation>
                <xs:documentation>Custom user-defined metadata associated with this Business Object Format. "name" is the attribute name (i.e. the key) and
@@ -2258,7 +2553,13 @@
          </xs:element>
          <xs:element name="retentionType" type="xs:string" minOccurs="0">
             <xs:annotation>
-               <xs:documentation>Retention type. Supported retention types: PARTITION_VALUE
+               <xs:documentation>Retention type. Supported retention types: PARTITION_VALUE, BDATA_RETENTION_TYPE.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="allowNonBackwardsCompatibleChanges" type="xs:boolean" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>If true, allows non backwards compatible changes to the schema
                </xs:documentation>
             </xs:annotation>
          </xs:element>
@@ -2901,6 +3202,17 @@
       </xs:all>
    </xs:complexType>
 
+   <xs:element name="businessObjectDataRetentionInformationUpdateRequest" type="businessObjectDataRetentionInformationUpdateRequest"/>
+   <xs:complexType name="businessObjectDataRetentionInformationUpdateRequest">
+      <xs:all>
+         <xs:element name="retentionExpirationDate" type="xs:dateTime" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The retention expiration date for this business object data in YYYY-MM-DD format</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
    <xs:element name="businessObjectData" type="businessObjectData"/>
    <xs:complexType name="businessObjectData">
       <xs:annotation>
@@ -3008,6 +3320,11 @@
          <xs:element name="businessObjectDataStatusHistory" type="businessObjectDataStatusHistory" minOccurs="0">
             <xs:annotation>
                <xs:documentation>Lists all business object data status change events for this business object data</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="retentionExpirationDate" type="xs:dateTime" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The retention expiration date for this business object data</xs:documentation>
             </xs:annotation>
          </xs:element>
       </xs:all>
@@ -3301,12 +3618,12 @@
 
    <xs:complexType name="businessObjectDataSearchKey">
       <xs:all>
-         <xs:element name="namespace" type="xs:string" minOccurs="0">
+         <xs:element name="namespace" type="xs:string">
             <xs:annotation>
                <xs:documentation>The Namespace to which a Business Object Format is related</xs:documentation>
             </xs:annotation>
          </xs:element>
-         <xs:element name="businessObjectDefinitionName" type="xs:string" minOccurs="0">
+         <xs:element name="businessObjectDefinitionName" type="xs:string">
             <xs:annotation>
                <xs:documentation>The name of the Business Object Definition to which a Business Object Format is related</xs:documentation>
             </xs:annotation>
@@ -3339,6 +3656,16 @@
          <xs:element name="partitionValueFilters" type="partitionValueFilters" minOccurs="0">
             <xs:annotation>
                <xs:documentation>A container for Partition Value Filters</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="registrationDateRangeFilter" type="registrationDateRangeFilter" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>A wrapper for the registration date range to check the availability between two dates or start from or end with. The request
+                  must contain either only start registration date or only end registration date or both start and end dates. If only start registration date is
+                  provided, all business object data registered on and after that date will be fetched. If only end registratoin date is provided, all business
+                  object data registered on or before that date will be fetched. And if both start and end registration dates are provided, all business object
+                  data registered in the range will be fetched
+               </xs:documentation>
             </xs:annotation>
          </xs:element>
          <xs:element name="attributeValueFilters" type="attributeValueFilters" minOccurs="0">
@@ -3785,6 +4112,21 @@
                <xs:documentation>The partition value that is an inclusive lower bound for the latest available partition value. Required when
                   latestAfterPartitionValue is present
                </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:complexType name="registrationDateRangeFilter">
+      <xs:all>
+         <xs:element name="startRegistrationDate" type="xs:date" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The start date for the registration date range in YYYY-MM-DD format</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="endRegistrationDate" type="xs:date" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The end date for the registration date range in YYYY-MM-DD format</xs:documentation>
             </xs:annotation>
          </xs:element>
       </xs:all>
@@ -5546,6 +5888,11 @@
                </xs:documentation>
             </xs:annotation>
          </xs:element>
+         <xs:element name="kerberosAttributes" type="emrClusterDefinitionKerberosAttributes" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>Attributes for Kerberos configuration when Kerberos authentication is enabled using a security configuration</xs:documentation>
+            </xs:annotation>
+         </xs:element>
       </xs:all>
    </xs:complexType>
 
@@ -6393,6 +6740,38 @@
          <xs:element name="keyValueShortcut" type="xs:string"/>
          <xs:element name="attribKey" type="xs:string"/>
          <xs:element name="attribVal" type="xs:string"/>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:complexType name="emrClusterDefinitionKerberosAttributes">
+      <xs:all>
+         <xs:element name="aDDomainJoinPassword" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The Active Directory password for ADDomainJoinUser</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="aDDomainJoinUser" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>Required only when establishing a cross-realm trust with an Active Directory domain</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="crossRealmTrustPrincipalPassword" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>Required only when establishing a cross-realm trust with a KDC in a different realm</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="kdcAdminPassword" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The password used within the cluster for the kadmin service on the cluster-dedicated KDC, which maintains Kerberos principals,
+                  password policies, and keytabs for the cluster
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="realm" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>The name of the Kerberos realm to which all nodes in a cluster belong</xs:documentation>
+            </xs:annotation>
+         </xs:element>
       </xs:all>
    </xs:complexType>
 
@@ -7531,7 +7910,7 @@
 
    <xs:complexType name="indexSearchRequest">
       <xs:all>
-         <xs:element name="searchTerm" type="xs:string" minOccurs="1">
+         <xs:element name="searchTerm" type="xs:string" minOccurs="0">
             <xs:annotation>
                <xs:documentation>The search term upon which to search</xs:documentation>
             </xs:annotation>
@@ -7602,6 +7981,12 @@
          <xs:element name="indexSearchResultTypeKey" type="indexSearchResultTypeKey" minOccurs="0" maxOccurs="1">
             <xs:annotation>
                <xs:documentation>An optional index search result type key. Only one is allowed
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="includeTagHierarchy" type="xs:boolean" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>An optional boolean flag that specifies if business object definition associated with entire tag hierarchy is to be retrieved
                </xs:documentation>
             </xs:annotation>
          </xs:element>
@@ -7761,6 +8146,103 @@
             </xs:annotation>
          </xs:element>
       </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="facets">
+      <xs:sequence>
+         <xs:element name="facet" type="facet" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>facet information</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="facetFields">
+      <xs:sequence>
+         <xs:element name="facetField" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>The Facet field information to be included with the response. Only Tag facet field is supported.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="facet">
+      <xs:all>
+         <xs:element name="facetDisplayName" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>Display name of the facet</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="facetCount" type="xs:long" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>count of the facet</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="facetType" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>Type of the facet</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="facetId" type="xs:string" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>unique identifier of the facet</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="facets" type="facets" minOccurs="0">
+            <xs:annotation>
+               <xs:documentation>list of facets</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+
+   <!-- ***** Security Function ***** -->
+
+   <xs:element name="securityFunctionCreateRequest" type="securityFunctionCreateRequest"/>
+   <xs:complexType name="securityFunctionCreateRequest">
+      <xs:all>
+         <xs:element name="securityFunctionName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The security function name</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityFunction" type="securityFunction"/>
+   <xs:complexType name="securityFunction">
+      <xs:all>
+         <xs:element name="securityFunctionName" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The security function name</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:all>
+   </xs:complexType>
+
+   <xs:element name="securityFunctionKeys" type="securityFunctionKeys">
+      <xs:annotation>
+         <xs:documentation>The list of security function keys</xs:documentation>
+      </xs:annotation>
+   </xs:element>
+   <xs:complexType name="securityFunctionKeys">
+      <xs:sequence>
+         <xs:element name="securityFunctionKey" type="securityFunctionKey" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>Value that uniquely identifies a Security Function</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="securityFunctionKey">
+      <xs:all>
+         <xs:element name="securityFunctionName" type="xs:string"/>
+      </xs:all>
    </xs:complexType>
 
    <!-- ***** Global Attribute Definition ***** -->

@@ -13,23 +13,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package org.finra.herd.rest;
 
-import java.beans.PropertyEditorSupport;
+-- bus_objct_data table
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.format.ISODateTimeFormat;
-import org.springframework.stereotype.Component;
+alter table bus_objct_data add column rtntn_xprtn_ts timestamp without time zone;
 
-/**
- * Property editor for Joda DateTime.
- */
-@Component
-public class DateTimeEditor extends PropertyEditorSupport
-{
-    @Override
-    public void setAsText(String text) throws IllegalArgumentException
-    {
-        setValue(StringUtils.isBlank(text) ? null : ISODateTimeFormat.dateTimeParser().parseDateTime(text.trim()));
-    }
-}
+-- rtntn_type_cd_lk
+
+insert into rtntn_type_cd_lk(rtntn_type_cd, creat_ts, creat_user_id, updt_ts, updt_user_id) values ('BDATA_RETENTION_DATE', current_timestamp, 'SYSTEM', current_timestamp, 'SYSTEM');
+
+--scrty_fn_lk
+
+insert into scrty_fn_lk (scrty_fn_cd, creat_ts, creat_user_id, updt_ts, updt_user_id)
+values ('FN_BUSINESS_OBJECT_DATA_RETENTION_INFORMATION_PUT', current_timestamp, 'SYSTEM', current_timestamp, 'SYSTEM');

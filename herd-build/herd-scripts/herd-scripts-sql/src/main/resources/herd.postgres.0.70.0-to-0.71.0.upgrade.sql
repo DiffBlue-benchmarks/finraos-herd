@@ -13,35 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package org.finra.herd.rest;
 
-import java.util.List;
+--bus_objct_frmt
 
-/**
- * A class to hold the values and the delimited value.   
- */
-public class DelimitedFieldValues
-{
-    private String delimitedValues;
-    private List<String> values;
+alter table bus_objct_frmt add column alw_non_bckwrds_cmptbl_chgs_fl char(1);
 
-    public String getDelimitedValues()
-    {
-        return delimitedValues;
-    }
+alter table bus_objct_frmt add constraint bus_objct_frmt_ck3 check (alw_non_bckwrds_cmptbl_chgs_fl in ('Y', 'N'));
 
-    public void setDelimitedValues(String partitionValues)
-    {
-        this.delimitedValues = partitionValues;
-    }
+--scrty_fn_lk
 
-    public List<String> getValues()
-    {
-        return values;
-    }
-
-    public void setValues(List<String> values)
-    {
-        this.values = values;
-    }
-}
+insert into scrty_fn_lk (scrty_fn_cd, creat_ts, creat_user_id, updt_ts, updt_user_id)
+values ('FN_BUSINESS_OBJECT_FORMAT_SCHEMA_BACKWARDS_COMPATIBILITY_PUT', current_timestamp, 'SYSTEM', current_timestamp, 'SYSTEM');

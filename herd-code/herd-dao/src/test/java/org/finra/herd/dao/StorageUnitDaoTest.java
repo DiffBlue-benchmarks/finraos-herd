@@ -44,6 +44,60 @@ import org.finra.herd.model.jpa.StorageUnitStatusEntity;
 public class StorageUnitDaoTest extends AbstractDaoTest
 {
     @Test
+    public void testGetLatestVersionStorageUnitsByStoragePlatformAndFileType()
+    {
+        // Create a business object data key.
+        BusinessObjectDataKey businessObjectDataKey =
+            new BusinessObjectDataKey(BDEF_NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, FORMAT_VERSION, PARTITION_VALUE, SUBPARTITION_VALUES,
+                DATA_VERSION);
+
+        // Create a storage unit entity that belong to the latest relative versions of business object format and business object data.
+        StorageUnitEntity storageUnitEntity = storageUnitDaoTestHelper
+            .createStorageUnitEntity(STORAGE_NAME, STORAGE_PLATFORM_CODE, businessObjectDataKey, AbstractDaoTest.LATEST_VERSION_FLAG_SET,
+                AbstractDaoTest.BDATA_STATUS, STORAGE_UNIT_STATUS, AbstractDaoTest.NO_STORAGE_DIRECTORY_PATH);
+
+        // Retrieve latest version storage units by storage platform and business object format file type.
+        assertEquals(Collections.singletonList(storageUnitEntity),
+            storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE, FORMAT_FILE_TYPE_CODE));
+
+        // Test case insensitivity of the input parameters.
+        assertEquals(Collections.singletonList(storageUnitEntity),
+            storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE.toUpperCase(), FORMAT_FILE_TYPE_CODE.toUpperCase()));
+        assertEquals(Collections.singletonList(storageUnitEntity),
+            storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE.toLowerCase(), FORMAT_FILE_TYPE_CODE.toLowerCase()));
+
+        // Try to retrieve storage units using invalid input parameters.
+        assertEquals(0, storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(I_DO_NOT_EXIST, FORMAT_FILE_TYPE_CODE).size());
+        assertEquals(0, storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE, I_DO_NOT_EXIST).size());
+
+        // Update the business object format entity not to have its latest version flag set.
+        storageUnitEntity.getBusinessObjectData().getBusinessObjectFormat().setLatestVersion(false);
+
+        // Validate that no storage units get selected now.
+        assertEquals(0, storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE, FORMAT_FILE_TYPE_CODE).size());
+
+        // Restore the business object format latest version flag.
+        storageUnitEntity.getBusinessObjectData().getBusinessObjectFormat().setLatestVersion(true);
+
+        // Retrieve latest version storage units by storage platform and business object format file type.
+        assertEquals(Collections.singletonList(storageUnitEntity),
+            storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE, FORMAT_FILE_TYPE_CODE));
+
+        // Update the business object data entity not to have its latest version flag set.
+        storageUnitEntity.getBusinessObjectData().setLatestVersion(false);
+
+        // Validate that no storage units get selected now.
+        assertEquals(0, storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE, FORMAT_FILE_TYPE_CODE).size());
+
+        // Restore the business object data latest version flag.
+        storageUnitEntity.getBusinessObjectData().setLatestVersion(true);
+
+        // Retrieve latest version storage units by storage platform and business object format file type.
+        assertEquals(Collections.singletonList(storageUnitEntity),
+            storageUnitDao.getLatestVersionStorageUnitsByStoragePlatformAndFileType(STORAGE_PLATFORM_CODE, FORMAT_FILE_TYPE_CODE));
+    }
+
+    @Test
     public void testGetS3StorageUnitsToCleanup()
     {
         // Create a list of business object data keys.
@@ -290,27 +344,27 @@ public class StorageUnitDaoTest extends AbstractDaoTest
     }
 
     @Test
-    public void testGetStorageUnitByStorageNameAndDirectoryPath()
+    public void testGetStorageUnitByStorageAndDirectoryPath()
     {
-        // Create database entities required for testing.
+        // Create two storage entities.
+        List<StorageEntity> storageEntities =
+            Arrays.asList(storageDaoTestHelper.createStorageEntity(STORAGE_NAME), storageDaoTestHelper.createStorageEntity(STORAGE_NAME_2));
+
+        // Create a storage unit entity.
         StorageUnitEntity storageUnitEntity = storageUnitDaoTestHelper
             .createStorageUnitEntity(STORAGE_NAME, NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, INITIAL_FORMAT_VERSION, PARTITION_VALUE,
                 SUBPARTITION_VALUES, INITIAL_DATA_VERSION, LATEST_VERSION_FLAG_SET, BDATA_STATUS, STORAGE_UNIT_STATUS, STORAGE_DIRECTORY_PATH);
 
-        // Retrieve the relative storage file entities and validate the results.
-        assertEquals(storageUnitEntity, storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath(STORAGE_NAME, STORAGE_DIRECTORY_PATH));
-
-        // Test case insensitivity for the storage name.
-        assertEquals(storageUnitEntity, storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath(STORAGE_NAME.toUpperCase(), STORAGE_DIRECTORY_PATH));
-        assertEquals(storageUnitEntity, storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath(STORAGE_NAME.toLowerCase(), STORAGE_DIRECTORY_PATH));
+        // Retrieve the relative storage unit entity.
+        assertEquals(storageUnitEntity, storageUnitDao.getStorageUnitByStorageAndDirectoryPath(storageEntities.get(0), STORAGE_DIRECTORY_PATH));
 
         // Test case sensitivity of the storage directory path.
-        assertNull(storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath(STORAGE_NAME, STORAGE_DIRECTORY_PATH.toUpperCase()));
-        assertNull(storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath(STORAGE_NAME, STORAGE_DIRECTORY_PATH.toLowerCase()));
+        assertNull(storageUnitDao.getStorageUnitByStorageAndDirectoryPath(storageEntities.get(0), STORAGE_DIRECTORY_PATH.toUpperCase()));
+        assertNull(storageUnitDao.getStorageUnitByStorageAndDirectoryPath(storageEntities.get(0), STORAGE_DIRECTORY_PATH.toLowerCase()));
 
-        // Confirm negative results when using wrong input parameters.
-        assertNull(storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath("I_DO_NOT_EXIST", TEST_S3_KEY_PREFIX));
-        assertNull(storageUnitDao.getStorageUnitByStorageNameAndDirectoryPath(STORAGE_NAME, "I_DO_NOT_EXIST"));
+        // Confirm that no storage unit get selected when using wrong input parameters.
+        assertNull(storageUnitDao.getStorageUnitByStorageAndDirectoryPath(storageEntities.get(1), STORAGE_DIRECTORY_PATH));
+        assertNull(storageUnitDao.getStorageUnitByStorageAndDirectoryPath(storageEntities.get(0), I_DO_NOT_EXIST));
     }
 
     @Test

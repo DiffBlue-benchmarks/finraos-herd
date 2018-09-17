@@ -121,6 +121,7 @@ public class BusinessObjectFormatHelper
         businessObjectFormat.setLatestVersion(businessObjectFormatEntity.getLatestVersion());
         businessObjectFormat.setPartitionKey(businessObjectFormatEntity.getPartitionKey());
         businessObjectFormat.setDescription(businessObjectFormatEntity.getDescription());
+        businessObjectFormat.setDocumentSchema(businessObjectFormatEntity.getDocumentSchema());
 
         // Add in the attributes.
         List<Attribute> attributes = new ArrayList<>();
@@ -239,9 +240,12 @@ public class BusinessObjectFormatHelper
             businessObjectFormat.setRetentionType(latestVersionBusinessObjectFormatEntity.getRetentionType().getCode());
         }
 
+        // Add business object format schema backwards compatibility changes flag.
+        businessObjectFormat.setAllowNonBackwardsCompatibleChanges(latestVersionBusinessObjectFormatEntity.isAllowNonBackwardsCompatibleChanges());
+
         return businessObjectFormat;
     }
-    
+
     /**
      * Creates the business object format from the persisted entity.
      *

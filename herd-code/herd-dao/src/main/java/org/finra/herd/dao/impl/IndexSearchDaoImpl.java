@@ -35,6 +35,7 @@ import io.searchbox.core.SearchResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -202,54 +203,59 @@ public class IndexSearchDaoImpl implements IndexSearchDao
     public IndexSearchResponse indexSearch(final IndexSearchRequest indexSearchRequest, final Set<String> fields, final Set<String> match,
         final String bdefActiveIndex, final String tagActiveIndex)
     {
-        boolean negationTermsExist = herdSearchQueryHelper.determineNegationTermsPresent(indexSearchRequest);
-
         // Build a basic Boolean query upon which add all the necessary clauses as needed
         BoolQueryBuilder indexSearchQueryBuilder = QueryBuilders.boolQuery();
 
         String searchPhrase = indexSearchRequest.getSearchTerm();
 
-        // Add the negation queries builder within a 'must-not' clause to the parent bool query if negation terms exist
-        if (negationTermsExist)
+        // If there is a search phrase, then process it
+        if (StringUtils.isNotEmpty(searchPhrase))
         {
-            // Build negation queries- each term is added to the query with a 'must-not' clause,
-            List<String> negationTerms = herdSearchQueryHelper.extractNegationTerms(indexSearchRequest);
+            // Determine if negation terms are present
+            boolean negationTermsExist = herdSearchQueryHelper.determineNegationTermsPresent(indexSearchRequest);
 
-            if (CollectionUtils.isNotEmpty(negationTerms))
+            // Add the negation queries builder within a 'must-not' clause to the parent bool query if negation terms exist
+            if (negationTermsExist)
             {
-                negationTerms.forEach(term ->
+                // Build negation queries- each term is added to the query with a 'must-not' clause,
+                List<String> negationTerms = herdSearchQueryHelper.extractNegationTerms(indexSearchRequest);
+
+                if (CollectionUtils.isNotEmpty(negationTerms))
                 {
-                    indexSearchQueryBuilder.mustNot(buildMultiMatchQuery(term, PHRASE, 100f, FIELD_TYPE_STEMMED, match));
-                });
+                    negationTerms.forEach(term ->
+                    {
+                        indexSearchQueryBuilder.mustNot(buildMultiMatchQuery(term, PHRASE, 100f, FIELD_TYPE_STEMMED, match));
+                    });
+                }
+
+                // Remove the negation terms from the search phrase
+                searchPhrase = herdSearchQueryHelper.extractSearchPhrase(indexSearchRequest);
             }
 
-            // Remove the negation terms from the search phrase
-            searchPhrase = herdSearchQueryHelper.extractSearchPhrase(indexSearchRequest);
+            // Build a Dismax query with three primary components (multi-match queries) with boost values, these values can be configured in the
+            // DB which provides a way to dynamically tune search behavior at runtime:
+            //  1. Phrase match query on shingles fields.
+            //  2. Phrase prefix query on stemmed fields.
+            //  3. Best fields query on ngrams fields.
+            final MultiMatchQueryBuilder phrasePrefixMultiMatchQueryBuilder = buildMultiMatchQuery(searchPhrase, PHRASE_PREFIX,
+                configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_PHRASE_PREFIX_QUERY_BOOST, Float.class), FIELD_TYPE_STEMMED, match);
+
+            final MultiMatchQueryBuilder bestFieldsMultiMatchQueryBuilder = buildMultiMatchQuery(searchPhrase, BEST_FIELDS,
+                configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_BEST_FIELDS_QUERY_BOOST, Float.class), FIELD_TYPE_NGRAMS, match);
+
+            final MultiMatchQueryBuilder phraseMultiMatchQueryBuilder =
+                buildMultiMatchQuery(searchPhrase, PHRASE, configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_PHRASE_QUERY_BOOST, Float.class),
+                    FIELD_TYPE_SHINGLES, match);
+
+            final MultiMatchQueryBuilder phraseStemmedMultiMatchQueryBuilder =
+                buildMultiMatchQuery(searchPhrase, PHRASE, configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_PHRASE_QUERY_BOOST, Float.class),
+                    FIELD_TYPE_STEMMED, match);
+
+            // Add the multi match queries to a dis max query and add to the parent bool query within a 'must' clause
+            indexSearchQueryBuilder.must(
+                disMaxQuery().add(phrasePrefixMultiMatchQueryBuilder).add(bestFieldsMultiMatchQueryBuilder).add(phraseMultiMatchQueryBuilder)
+                    .add(phraseStemmedMultiMatchQueryBuilder));
         }
-
-        // Build a Dismax query with three primary components (multi-match queries) with boost values, these values can be configured in the
-        // DB which provides a way to dynamically tune search behavior at runtime:
-        //  1. Phrase match query on shingles fields.
-        //  2. Phrase prefix query on stemmed fields.
-        //  3. Best fields query on ngrams fields.
-        final MultiMatchQueryBuilder phrasePrefixMultiMatchQueryBuilder = buildMultiMatchQuery(searchPhrase, PHRASE_PREFIX,
-            configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_PHRASE_PREFIX_QUERY_BOOST, Float.class), FIELD_TYPE_STEMMED, match);
-
-        final MultiMatchQueryBuilder bestFieldsMultiMatchQueryBuilder = buildMultiMatchQuery(searchPhrase, BEST_FIELDS,
-            configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_BEST_FIELDS_QUERY_BOOST, Float.class), FIELD_TYPE_NGRAMS, match);
-
-        final MultiMatchQueryBuilder phraseMultiMatchQueryBuilder =
-            buildMultiMatchQuery(searchPhrase, PHRASE, configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_PHRASE_QUERY_BOOST, Float.class),
-                FIELD_TYPE_SHINGLES, match);
-
-        final MultiMatchQueryBuilder phraseStemmedMultiMatchQueryBuilder =
-            buildMultiMatchQuery(searchPhrase, PHRASE, configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_PHRASE_QUERY_BOOST, Float.class),
-                FIELD_TYPE_STEMMED, match);
-
-        // Add the multi match queries to a dis max query and add to the parent bool query within a 'must' clause
-        indexSearchQueryBuilder
-            .must(disMaxQuery().add(phrasePrefixMultiMatchQueryBuilder).add(bestFieldsMultiMatchQueryBuilder)
-                .add(phraseMultiMatchQueryBuilder).add(phraseStemmedMultiMatchQueryBuilder));
 
         // Add filter clauses if index search filters are specified in the request
         if (CollectionUtils.isNotEmpty(indexSearchRequest.getIndexSearchFilters()))
@@ -333,79 +339,93 @@ public class IndexSearchDaoImpl implements IndexSearchDao
 
         List<IndexSearchResult> indexSearchResults = new ArrayList<>();
 
-        final List<SearchResult.Hit<Map, Void>> searchHitList = searchResult.getHits(Map.class);
-
-        // For each indexSearch hit
-        for (final SearchResult.Hit<Map, Void> hit : searchHitList)
+        try
         {
-            // Get the source map from the indexSearch hit
-            @SuppressWarnings("unchecked")
-            final Map<String, Object> sourceMap = hit.source;
 
-            // Get the index from which this result is from
-            final String index = hit.index;
 
-            // Create a new document to populate with the indexSearch results
-            final IndexSearchResult indexSearchResult = new IndexSearchResult();
+            final List<SearchResult.Hit<Map, Void>> searchHitList = searchResult.getHits(Map.class);
 
-            // Populate the results
-            indexSearchResult.setSearchIndexKey(new SearchIndexKey(index));
-            if (fields.contains(DISPLAY_NAME_FIELD))
+            // For each indexSearch hit
+            for (final SearchResult.Hit<Map, Void> hit : searchHitList)
             {
-                indexSearchResult.setDisplayName((String) sourceMap.get(DISPLAY_NAME_SOURCE));
-            }
+                // Get the source map from the indexSearch hit
+                @SuppressWarnings("unchecked")
+                final Map<String, Object> sourceMap = hit.source;
 
-            // Populate tag index specific key
-            if (index.equals(tagActiveIndex))
-            {
-                if (fields.contains(SHORT_DESCRIPTION_FIELD))
+                // Get the index from which this result is from
+                final String index = hit.index;
+
+                // Create a new document to populate with the indexSearch results
+                final IndexSearchResult indexSearchResult = new IndexSearchResult();
+
+                // Populate the results
+                indexSearchResult.setSearchIndexKey(new SearchIndexKey(index));
+                if (fields.contains(DISPLAY_NAME_FIELD))
                 {
-                    indexSearchResult
-                        .setShortDescription(HerdStringUtils.getShortDescription((String) sourceMap.get(DESCRIPTION_SOURCE), tagShortDescMaxLength));
+                    indexSearchResult.setDisplayName((String) sourceMap.get(DISPLAY_NAME_SOURCE));
                 }
 
-                final TagKey tagKey = new TagKey();
-                tagKey.setTagCode((String) sourceMap.get(TAG_CODE_SOURCE));
-                tagKey.setTagTypeCode((String) ((Map) sourceMap.get(TAG_TYPE)).get(CODE));
-                indexSearchResult.setIndexSearchResultType(SearchIndexTypeEntity.SearchIndexTypes.TAG.name());
-                indexSearchResult.setIndexSearchResultKey(new IndexSearchResultKey(tagKey, null));
-            }
-            // Populate business object definition key
-            else if (index.equals(bdefActiveIndex))
-            {
-                if (fields.contains(SHORT_DESCRIPTION_FIELD))
+                // Populate tag index specific key
+                if (index.equals(tagActiveIndex))
                 {
-                    indexSearchResult.setShortDescription(
-                        HerdStringUtils.getShortDescription((String) sourceMap.get(DESCRIPTION_SOURCE), businessObjectDefinitionShortDescMaxLength));
+                    if (fields.contains(SHORT_DESCRIPTION_FIELD))
+                    {
+                        indexSearchResult
+                            .setShortDescription(HerdStringUtils.getShortDescription((String) sourceMap.get(DESCRIPTION_SOURCE), tagShortDescMaxLength));
+                    }
+
+                    final TagKey tagKey = new TagKey();
+                    tagKey.setTagCode((String) sourceMap.get(TAG_CODE_SOURCE));
+                    tagKey.setTagTypeCode((String) ((Map) sourceMap.get(TAG_TYPE)).get(CODE));
+                    indexSearchResult.setIndexSearchResultType(SearchIndexTypeEntity.SearchIndexTypes.TAG.name());
+                    indexSearchResult.setIndexSearchResultKey(new IndexSearchResultKey(tagKey, null));
+                }
+                // Populate business object definition key
+                else if (index.equals(bdefActiveIndex))
+                {
+                    if (fields.contains(SHORT_DESCRIPTION_FIELD))
+                    {
+                        indexSearchResult.setShortDescription(
+                            HerdStringUtils.getShortDescription((String) sourceMap.get(DESCRIPTION_SOURCE), businessObjectDefinitionShortDescMaxLength));
+                    }
+
+                    final BusinessObjectDefinitionKey businessObjectDefinitionKey = new BusinessObjectDefinitionKey();
+                    businessObjectDefinitionKey.setNamespace((String) ((Map) sourceMap.get(NAMESPACE)).get(CODE));
+                    businessObjectDefinitionKey.setBusinessObjectDefinitionName((String) sourceMap.get(NAME_SOURCE));
+                    indexSearchResult.setIndexSearchResultType(SearchIndexTypeEntity.SearchIndexTypes.BUS_OBJCT_DFNTN.name());
+                    indexSearchResult.setIndexSearchResultKey(new IndexSearchResultKey(null, businessObjectDefinitionKey));
+                }
+                else
+                {
+                    throw new IllegalStateException(String
+                        .format("Search result index name \"%s\" does not match any of the active search indexes. tagActiveIndex=\"%s\" bdefActiveIndex=\"%s\"",
+                            index, tagActiveIndex, bdefActiveIndex));
                 }
 
-                final BusinessObjectDefinitionKey businessObjectDefinitionKey = new BusinessObjectDefinitionKey();
-                businessObjectDefinitionKey.setNamespace((String) ((Map) sourceMap.get(NAMESPACE)).get(CODE));
-                businessObjectDefinitionKey.setBusinessObjectDefinitionName((String) sourceMap.get(NAME_SOURCE));
-                indexSearchResult.setIndexSearchResultType(SearchIndexTypeEntity.SearchIndexTypes.BUS_OBJCT_DFNTN.name());
-                indexSearchResult.setIndexSearchResultKey(new IndexSearchResultKey(null, businessObjectDefinitionKey));
+                if (BooleanUtils.isTrue(isHighlightingEnabled))
+                {
+                    // Fetch configured 'tag' values for highlighting
+                    String preTag = configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_HIGHLIGHT_PRETAGS);
+                    String postTag = configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_HIGHLIGHT_POSTTAGS);
+
+                    // Extract highlighted content from the search hit and clean html tags except the pre/post-tags as configured
+                    Highlight highlightedContent = extractHighlightedContent(hit, preTag, postTag);
+
+                    // Set highlighted content in the response element
+                    indexSearchResult.setHighlight(highlightedContent);
+                }
+
+                indexSearchResults.add(indexSearchResult);
             }
-            else
-            {
-                throw new IllegalStateException(String
-                    .format("Search result index name \"%s\" does not match any of the active search indexes. tagActiveIndex=%s bdefActiveIndex=%s", index,
-                        tagActiveIndex, bdefActiveIndex));
-            }
+        }
+        catch (RuntimeException e)
+        {
+            // Log the error along with the search response and throw the exception.
+            LOGGER.error("Failed to parse search results. tagActiveIndex=\"{}\" bdefActiveIndex=\"{}\" fields={} isHighlightingEnabled={} searchResult={}",
+                tagActiveIndex, bdefActiveIndex, jsonHelper.objectToJson(fields), isHighlightingEnabled, jsonHelper.objectToJson(searchResult), e);
 
-            if (BooleanUtils.isTrue(isHighlightingEnabled))
-            {
-                // Fetch configured 'tag' values for highlighting
-                String preTag = configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_HIGHLIGHT_PRETAGS);
-                String postTag = configurationHelper.getProperty(ConfigurationValue.ELASTICSEARCH_HIGHLIGHT_POSTTAGS);
-
-                // Extract highlighted content from the search hit and clean html tags except the pre/post-tags as configured
-                Highlight highlightedContent = extractHighlightedContent(hit, preTag, postTag);
-
-                // Set highlighted content in the response element
-                indexSearchResult.setHighlight(highlightedContent);
-            }
-
-            indexSearchResults.add(indexSearchResult);
+            // Throw an exception.
+            throw new IllegalStateException("Unexpected response received when attempting to retrieve search results.");
         }
 
         return indexSearchResults;

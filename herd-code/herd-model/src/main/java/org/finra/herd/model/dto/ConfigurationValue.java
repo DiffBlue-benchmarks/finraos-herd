@@ -178,15 +178,20 @@ public enum ConfigurationValue
     JMS_PUBLISHING_JOB_CRON_EXPRESSION("jms.publishing.job.cron.expression", "0 0/5 * * * ?"),
 
     /**
-     * The cron expression to schedule "ec2OnDemandPricingUpdate" system job.  Default is to run the system job at 06:00 on Sunday.
+     * The cron expression to schedule "ec2OnDemandPricingUpdate" system job. Default is to disable the job by scheduling it to run way in the future.
      */
-    EC2_ON_DEMAND_PRICING_UPDATE_JOB_CRON_EXPRESSION("ec2.on.demand.pricing.update.job.cron.expression", "0 0 6 ? * SUN"),
+    EC2_ON_DEMAND_PRICING_UPDATE_JOB_CRON_EXPRESSION("ec2.on.demand.pricing.update.job.cron.expression", "59 59 23 31 12 ? 2099"),
 
     /**
      * The URL of the Amazon EC2 pricing list in JSON format. Default is set to the URL specified by Amazon.
      */
     EC2_ON_DEMAND_PRICING_UPDATE_JOB_EC2_PRICING_LIST_URL("ec2.on.demand.pricing.update.job.ec2.pricing.list.url",
         "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json"),
+
+    /**
+     * The cron expression to schedule "relationalTableSchemaUpdate" system job.  Default is to run this system job every night at 8 AM.
+     */
+    RELATIONAL_TABLE_SCHEMA_UPDATE_JOB_CRON_EXPRESSION("relational.table.schema.update.job.cron.expression", "0 0 8 * * ?"),
 
     /**
      * The cron expression to schedule "storagePolicySelector" system job.  Default is to run the system job every night at 2 AM.
@@ -255,7 +260,6 @@ public enum ConfigurationValue
      * default is 1000 business object data instances.
      */
     CLEANUP_DESTROYED_BDATA_JOB_MAX_BDATA_INSTANCES("cleanup.destroyed.business.object.data.job.max.business.object.data.instances", "1000"),
-
 
     /**
      * The default value for the expiration time for the business object data restore. The default is 30 days
@@ -328,8 +332,8 @@ public enum ConfigurationValue
     EMR_SPOT_PRICE_HISTORY_PRODUCT_DESCRIPTIONS("emr.spot.price.history.product.descriptions", null),
 
     /**
-     * The threshold value in percentage when choosing an EMR cluster based on the lowest core instance price. It should be of string type so the precision
-     * can be kept. The default value is 10 percent.
+     * The threshold value in percentage when choosing an EMR cluster based on the lowest core instance price. It should be of string type so the precision can
+     * be kept. The default value is 10 percent.
      */
     EMR_CLUSTER_LOWEST_CORE_INSTANCE_PRICE_PERCENTAGE("emr.cluster.lowest.core.instance.price.threshold.percentage", "0.1"),
 
@@ -593,6 +597,14 @@ public enum ConfigurationValue
      * cause no messages to be sent.
      */
     HERD_NOTIFICATION_STORAGE_UNIT_STATUS_CHANGE_MESSAGE_DEFINITIONS("herd.notification.storage.unit.status.change.message.definitions", null),
+
+    /**
+     * Contains a list of notification message definitions as defined in {@link org.finra.herd.model.api.xml.NotificationMessageDefinitions
+     * NotificationMessageDefinitions} to use when generating notification messages for a business object definition descriptive suggestion change event. There
+     * is no default value which will cause no messages to be sent.
+     */
+    HERD_NOTIFICATION_BUSINESS_OBJECT_DEFINITION_DESCRIPTION_SUGGESTION_CHANGE_MESSAGE_DEFINITIONS(
+        "herd.notification.business.object.definition.description.suggestion.change.message.definitions", null),
 
     /**
      * The cache time to live in seconds defined in net.sf.ehcache.config.CacheConfiguration.

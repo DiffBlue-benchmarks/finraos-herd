@@ -24,7 +24,7 @@
 
    <groupId>org.finra.herd</groupId>
    <artifactId>herd</artifactId>
-   <version>0.66.0-SNAPSHOT</version>
+   <version>0.78.0-SNAPSHOT</version>
 
    <description>This is the base pom for the herd project.</description>
    <url>http://finraos.github.io/herd/</url>
@@ -32,7 +32,7 @@
    <properties>
 
       <!-- NOTE: This version number should be updated after EACH sprint at the same time as the herd snapshot version above. -->
-      <herd-ui.version>0.36.0</herd-ui.version>
+      <herd-ui.version>0.48.0</herd-ui.version>
 
       <!-- Third Party JAR Dependencies -->
       <!--
@@ -42,7 +42,7 @@
        -->
       <activiti.version>5.19.0.1</activiti.version>
       <aspectj.version>1.8.11</aspectj.version>
-      <aws.sdk.version>1.11.210</aws.sdk.version>
+      <aws.sdk.version>1.11.333</aws.sdk.version>
       <aws.sqs.messaging.version>1.0.4</aws.sqs.messaging.version>
       <cobertura.version>2.1.1</cobertura.version>
       <commons.cli.version>1.4</commons.cli.version>
@@ -894,6 +894,9 @@
                <groupId>org.codehaus.mojo</groupId>
                <artifactId>cobertura-maven-plugin</artifactId>
                <version>${maven.cobertura.plugin.version}</version>
+               <configuration>
+                  <quiet>true</quiet>
+               </configuration>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -930,6 +933,7 @@
                   <footer>herd API</footer>
                   <doctitle>herd ${project.version} API</doctitle>
                   <notimestamp>true</notimestamp>
+                  <quiet>true</quiet>
                   <!-- This is needed in Java 8 to ensure strict Javadoc checking isn't enforced. -->
                   <additionalparam>-Xdoclint:none</additionalparam>
                </configuration>

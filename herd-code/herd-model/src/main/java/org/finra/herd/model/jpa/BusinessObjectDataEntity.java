@@ -15,6 +15,7 @@
 */
 package org.finra.herd.model.jpa;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 
@@ -102,8 +103,9 @@ public class BusinessObjectDataEntity extends AuditableEntity
     private Collection<BusinessObjectDataAttributeEntity> attributes;
 
     // These are the parents (i.e. the data that was needed to create this data).
-    @JoinTable(name = "bus_objct_data_prnt", joinColumns = {@JoinColumn(name = TABLE_NAME + "_id", referencedColumnName = TABLE_NAME + "_id")},
-        inverseJoinColumns = {@JoinColumn(name = "prnt_bus_objct_data_id", referencedColumnName = TABLE_NAME + "_id")})
+    @JoinTable(name = "bus_objct_data_prnt", joinColumns = {
+        @JoinColumn(name = TABLE_NAME + "_id", referencedColumnName = TABLE_NAME + "_id")}, inverseJoinColumns = {
+        @JoinColumn(name = "prnt_bus_objct_data_id", referencedColumnName = TABLE_NAME + "_id")})
     @ManyToMany
     private List<BusinessObjectDataEntity> businessObjectDataParents;
 
@@ -115,9 +117,15 @@ public class BusinessObjectDataEntity extends AuditableEntity
     @JoinColumn(name = "bus_objct_data_stts_cd", referencedColumnName = "bus_objct_data_stts_cd", nullable = false)
     private BusinessObjectDataStatusEntity status;
 
+    @Column(name = "bus_objct_data_stts_cd", insertable = false, updatable = false)
+    private String statusCode;
+
     @OneToMany(mappedBy = "businessObjectData", orphanRemoval = true, cascade = {CascadeType.ALL})
     @OrderBy("createdOn DESC")
     private Collection<BusinessObjectDataStatusHistoryEntity> historicalStatuses;
+
+    @Column(name = "rtntn_xprtn_ts")
+    private Timestamp retentionExpiration;
 
     public Integer getId()
     {
@@ -259,6 +267,16 @@ public class BusinessObjectDataEntity extends AuditableEntity
         this.status = status;
     }
 
+    public String getStatusCode()
+    {
+        return statusCode;
+    }
+
+    public void setStatusCode(String statusCode)
+    {
+        this.statusCode = statusCode;
+    }
+
     public Collection<BusinessObjectDataStatusHistoryEntity> getHistoricalStatuses()
     {
         return historicalStatuses;
@@ -267,5 +285,15 @@ public class BusinessObjectDataEntity extends AuditableEntity
     public void setHistoricalStatuses(Collection<BusinessObjectDataStatusHistoryEntity> historicalStatuses)
     {
         this.historicalStatuses = historicalStatuses;
+    }
+
+    public Timestamp getRetentionExpiration()
+    {
+        return retentionExpiration;
+    }
+
+    public void setRetentionExpiration(Timestamp retentionExpiration)
+    {
+        this.retentionExpiration = retentionExpiration;
     }
 }

@@ -15,7 +15,7 @@
 */
 package org.finra.herd.dao;
 
-import static org.finra.herd.dao.AbstractDaoTest.SECURITY_ROLE_1;
+import static org.finra.herd.dao.AbstractDaoTest.SECURITY_ROLE;
 import static org.finra.herd.dao.AbstractDaoTest.SECURITY_ROLE_2;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class SecurityRoleDaoTestHelper
     private List<SecurityRoleEntity> getTestSecurityRoleEntities()
     {
         SecurityRoleEntity securityRoleEntityOne = new SecurityRoleEntity();
-        securityRoleEntityOne.setCode(SECURITY_ROLE_1);
+        securityRoleEntityOne.setCode(SECURITY_ROLE);
 
         SecurityRoleEntity securityRoleEntityTwo = new SecurityRoleEntity();
         securityRoleEntityTwo.setCode(SECURITY_ROLE_2);
@@ -74,5 +74,22 @@ public class SecurityRoleDaoTestHelper
             securityRoleEntities.add(createSecurityRoleEntity(securityRoleEntity.getCode()));
         }
         return securityRoleEntities;
+    }
+
+    /**
+     * Creates and persists a security role entity
+     *
+     * @param code the name of the security role
+     *
+     * @param description the description of the security role
+     *
+     * @return the security role entity
+     */
+    public SecurityRoleEntity createSecurityRoleEntity(String code,String description)
+    {
+        SecurityRoleEntity securityRoleEntity = new SecurityRoleEntity();
+        securityRoleEntity.setCode(code);
+        securityRoleEntity.setDescription(description);
+        return securityRoleDao.saveAndRefresh(securityRoleEntity);
     }
 }

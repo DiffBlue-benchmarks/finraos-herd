@@ -44,6 +44,7 @@ import org.finra.herd.model.api.xml.BusinessObjectFormatKey;
 import org.finra.herd.model.api.xml.BusinessObjectFormatKeys;
 import org.finra.herd.model.api.xml.BusinessObjectFormatParentsUpdateRequest;
 import org.finra.herd.model.api.xml.BusinessObjectFormatRetentionInformationUpdateRequest;
+import org.finra.herd.model.api.xml.BusinessObjectFormatSchemaBackwardsCompatibilityUpdateRequest;
 import org.finra.herd.model.api.xml.BusinessObjectFormatUpdateRequest;
 import org.finra.herd.model.jpa.FileTypeEntity;
 import org.finra.herd.model.jpa.RetentionTypeEntity;
@@ -74,14 +75,15 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
         // Create an initial version of the business object format.
         BusinessObjectFormatCreateRequest request = businessObjectFormatServiceTestHelper
             .createBusinessObjectFormatCreateRequest(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, PARTITION_KEY, FORMAT_DESCRIPTION,
-                businessObjectDefinitionServiceTestHelper.getNewAttributes(), businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
-                businessObjectFormatServiceTestHelper.getTestSchema());
+                FORMAT_DOCUMENT_SCHEMA, businessObjectDefinitionServiceTestHelper.getNewAttributes(),
+                businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(), businessObjectFormatServiceTestHelper.getTestSchema());
 
         // Create an initial version of a business object format.
         BusinessObjectFormat businessObjectFormat =
             new BusinessObjectFormat(ID, NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, 0, true, PARTITION_KEY, FORMAT_DESCRIPTION,
-                businessObjectDefinitionServiceTestHelper.getNewAttributes(), businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
-                businessObjectFormatServiceTestHelper.getTestSchema(), null, null, NO_RECORDFLAG, NO_RETENTIONPERIODINDAYS, NO_RETENTIONTYPE);
+                NO_FORMAT_DOCUMENT_SCHEMA, businessObjectDefinitionServiceTestHelper.getNewAttributes(),
+                businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(), businessObjectFormatServiceTestHelper.getTestSchema(), null, null,
+                NO_RECORD_FLAG_SET, NO_RETENTION_PERIOD_IN_DAYS, NO_RETENTION_TYPE, NO_ALLOW_NON_BACKWARDS_COMPATIBLE_CHANGES_SET);
 
         when(businessObjectFormatService.createBusinessObjectFormat(request)).thenReturn(businessObjectFormat);
         BusinessObjectFormat resultBusinessObjectFormat = businessObjectFormatRestController.createBusinessObjectFormat(request);
@@ -98,8 +100,9 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
     {
         BusinessObjectFormat businessObjectFormat =
             new BusinessObjectFormat(ID, NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, INITIAL_FORMAT_VERSION, true, PARTITION_KEY,
-                FORMAT_DESCRIPTION, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
-                businessObjectFormatServiceTestHelper.getTestSchema(), null, null, NO_RECORDFLAG, NO_RETENTIONPERIODINDAYS, NO_RETENTIONTYPE);
+                FORMAT_DESCRIPTION, NO_FORMAT_DOCUMENT_SCHEMA, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
+                businessObjectFormatServiceTestHelper.getTestSchema(), null, null, NO_RECORD_FLAG_SET, NO_RETENTION_PERIOD_IN_DAYS, NO_RETENTION_TYPE,
+                NO_ALLOW_NON_BACKWARDS_COMPATIBLE_CHANGES_SET);
 
         BusinessObjectFormatKey businessObjectFormatKey =
             new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, INITIAL_FORMAT_VERSION);
@@ -170,8 +173,9 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
     {
         BusinessObjectFormat businessObjectFormat =
             new BusinessObjectFormat(ID, NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, INITIAL_FORMAT_VERSION, true, PARTITION_KEY,
-                FORMAT_DESCRIPTION, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
-                businessObjectFormatServiceTestHelper.getTestSchema(), null, null, NO_RECORDFLAG, NO_RETENTIONPERIODINDAYS, NO_RETENTIONTYPE);
+                FORMAT_DESCRIPTION, NO_FORMAT_DOCUMENT_SCHEMA, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
+                businessObjectFormatServiceTestHelper.getTestSchema(), null, null, NO_RECORD_FLAG_SET, NO_RETENTION_PERIOD_IN_DAYS, NO_RETENTION_TYPE,
+                NO_ALLOW_NON_BACKWARDS_COMPATIBLE_CHANGES_SET);
 
         BusinessObjectFormatKey businessObjectFormatKey =
             new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, INITIAL_FORMAT_VERSION);
@@ -216,9 +220,11 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
             .asList(new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, DATA_PROVIDER_NAME, BDEF_DESCRIPTION, INITIAL_FORMAT_VERSION),
                 new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, DATA_PROVIDER_NAME_2, BDEF_DESCRIPTION, INITIAL_FORMAT_VERSION)));
 
-        when(businessObjectFormatService.getBusinessObjectFormatsWithFilters(businessObjectDefinitionKey, FORMAT_USAGE_CODE, false)).thenReturn(businessObjectFormatKeys);
+        when(businessObjectFormatService.getBusinessObjectFormatsWithFilters(businessObjectDefinitionKey, FORMAT_USAGE_CODE, false))
+            .thenReturn(businessObjectFormatKeys);
         // Retrieve a list of business object format keys for the specified business object definition.
-        BusinessObjectFormatKeys resultKeys = businessObjectFormatRestController.getBusinessObjectFormatsWithFilters(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE,false);
+        BusinessObjectFormatKeys resultKeys =
+            businessObjectFormatRestController.getBusinessObjectFormatsWithFilters(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, false);
 
         // Verify the external calls.
         verify(businessObjectFormatService).getBusinessObjectFormatsWithFilters(businessObjectDefinitionKey, FORMAT_USAGE_CODE, false);
@@ -226,21 +232,22 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
         // Validate the returned object.
         assertEquals(businessObjectFormatKeys, resultKeys);
     }
-    
+
     @Test
     public void testUpdateBusinessObjectFormat()
     {
         BusinessObjectFormat businessObjectFormat =
             new BusinessObjectFormat(ID, NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, 1, true, PARTITION_KEY, FORMAT_DESCRIPTION_2,
-                NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(), businessObjectFormatServiceTestHelper.getTestSchema2(),
-                null, null, NO_RECORDFLAG, NO_RETENTIONPERIODINDAYS, NO_RETENTIONTYPE);
+                NO_FORMAT_DOCUMENT_SCHEMA, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestAttributeDefinitions(),
+                businessObjectFormatServiceTestHelper.getTestSchema2(), null, null, NO_RECORD_FLAG_SET, NO_RETENTION_PERIOD_IN_DAYS, NO_RETENTION_TYPE,
+                NO_ALLOW_NON_BACKWARDS_COMPATIBLE_CHANGES_SET);
 
         BusinessObjectFormatKey businessObjectFormatKey =
             new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, INITIAL_FORMAT_VERSION);
 
         // Perform an update by changing the description and schema.
         BusinessObjectFormatUpdateRequest request = businessObjectFormatServiceTestHelper
-            .createBusinessObjectFormatUpdateRequest(FORMAT_DESCRIPTION_2, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestSchema2());
+            .createBusinessObjectFormatUpdateRequest(FORMAT_DESCRIPTION_2, FORMAT_DOCUMENT_SCHEMA_2, NO_ATTRIBUTES, businessObjectFormatServiceTestHelper.getTestSchema2());
 
         when(businessObjectFormatService.updateBusinessObjectFormat(businessObjectFormatKey, request)).thenReturn(businessObjectFormat);
 
@@ -326,7 +333,7 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
     }
 
     @Test
-    public void testUpdateBusinessObjectRetentionInformation()
+    public void testUpdateBusinessObjectFormatRetentionInformation()
     {
         BusinessObjectFormatKey businessObjectFormatKey = new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, null);
         BusinessObjectFormatRetentionInformationUpdateRequest updateRequest = new BusinessObjectFormatRetentionInformationUpdateRequest();
@@ -344,6 +351,29 @@ public class BusinessObjectFormatRestControllerTest extends AbstractRestTest
 
         // Verify the external calls.
         verify(businessObjectFormatService).updateBusinessObjectFormatRetentionInformation(businessObjectFormatKey, updateRequest);
+        verifyNoMoreInteractions(businessObjectFormatService);
+        // Validate the returned object.
+        assertEquals(businessObjectFormat, updatedBusinessObjectFormat);
+    }
+
+    @Test
+    public void testUpdateBusinessObjectFormatSchemaCompatibleChanges()
+    {
+        BusinessObjectFormatKey businessObjectFormatKey = new BusinessObjectFormatKey(NAMESPACE, BDEF_NAME, FORMAT_USAGE_CODE, FORMAT_FILE_TYPE_CODE, null);
+        BusinessObjectFormatSchemaBackwardsCompatibilityUpdateRequest updateRequest = new BusinessObjectFormatSchemaBackwardsCompatibilityUpdateRequest();
+        updateRequest.setAllowNonBackwardsCompatibleChanges(true);
+
+        BusinessObjectFormat businessObjectFormat = new BusinessObjectFormat();
+        when(businessObjectFormatService.updateBusinessObjectFormatSchemaBackwardsCompatibilityChanges(businessObjectFormatKey, updateRequest))
+            .thenReturn(businessObjectFormat);
+
+        BusinessObjectFormat updatedBusinessObjectFormat = businessObjectFormatRestController
+            .updateBusinessObjectFormatSchemaBackwardsCompatibleChanges(businessObjectFormatKey.getNamespace(),
+                businessObjectFormatKey.getBusinessObjectDefinitionName(), businessObjectFormatKey.getBusinessObjectFormatUsage(),
+                businessObjectFormatKey.getBusinessObjectFormatFileType(), updateRequest);
+
+        // Verify the external calls.
+        verify(businessObjectFormatService).updateBusinessObjectFormatSchemaBackwardsCompatibilityChanges(businessObjectFormatKey, updateRequest);
         verifyNoMoreInteractions(businessObjectFormatService);
         // Validate the returned object.
         assertEquals(businessObjectFormat, updatedBusinessObjectFormat);

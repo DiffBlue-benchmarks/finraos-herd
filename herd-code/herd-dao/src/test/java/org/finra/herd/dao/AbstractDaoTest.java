@@ -48,6 +48,7 @@ import org.finra.herd.dao.helper.HerdCollectionHelper;
 import org.finra.herd.dao.helper.JavaPropertiesHelper;
 import org.finra.herd.model.api.xml.Attribute;
 import org.finra.herd.model.api.xml.AttributeDefinition;
+import org.finra.herd.model.api.xml.AttributeValueFilter;
 import org.finra.herd.model.api.xml.DataProviderKey;
 import org.finra.herd.model.api.xml.EmrClusterDefinitionEbsConfiguration;
 import org.finra.herd.model.api.xml.EmrClusterDefinitionVolumeSpecification;
@@ -55,6 +56,8 @@ import org.finra.herd.model.api.xml.IndexSearchFilter;
 import org.finra.herd.model.api.xml.IndexSearchResultTypeKey;
 import org.finra.herd.model.api.xml.MessageHeaderDefinition;
 import org.finra.herd.model.api.xml.NamespacePermissionEnum;
+import org.finra.herd.model.api.xml.PartitionValueFilter;
+import org.finra.herd.model.api.xml.RegistrationDateRangeFilter;
 import org.finra.herd.model.api.xml.SampleDataFile;
 import org.finra.herd.model.api.xml.Schema;
 import org.finra.herd.model.api.xml.SchemaColumn;
@@ -76,6 +79,10 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
     public static final String ACTIVITI_ID_3 = "UT_Activiti_ID_3_" + RANDOM_SUFFIX;
 
     public static final String ACTIVITI_ID_4 = "UT_Activiti_ID_4_" + RANDOM_SUFFIX;
+
+    public static final String AD_DOMAIN_JOIN_PASSWORD = "UT_ADDomainJoinPassword_" + RANDOM_SUFFIX;
+
+    public static final String AD_DOMAIN_JOIN_USER = "UT_ADDomainJoinUser_" + RANDOM_SUFFIX;
 
     public static final String AGGREGATION_NAME = "UT_AggregationName_" + RANDOM_SUFFIX;
 
@@ -187,6 +194,10 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String BDEF_DESCRIPTION_2 = "UT_BusinessObjectDefinition_Description_" + RANDOM_SUFFIX_2;
 
+    public static final String BDEF_DESCRIPTION_SUGGESTION_STATUS = "UT_BusinessObjectDefinition_Description_Suggestion_Status_1_" + RANDOM_SUFFIX;
+
+    public static final String BDEF_DESCRIPTION_SUGGESTION_STATUS_2 = "UT_BusinessObjectDefinition_Description_Suggestion_Status_2_" + RANDOM_SUFFIX;
+
     public static final String BDEF_DESCRIPTION_WITH_HTML_AND_CARET_VALUES = "Test Description. Value should be <30> <div> <p> value should be <40> </p>";
 
     public static final String BDEF_DISPLAY_NAME = "UT_BusinessObjectDefinition_Display_Name_1_" + RANDOM_SUFFIX;
@@ -263,6 +274,8 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String CREDSTASH_ENCRYPTION_CONTEXT = "UT_CredStashEncryptionContext_" + RANDOM_SUFFIX;
 
+    public static final String CROSS_REALM_TRUST_PRINCIPAL_PASSWORD = "UT_CrossRealmTrustPrincipalPassword_" + RANDOM_SUFFIX;
+
     public static final String CUSTOM_DDL_NAME = "UT_CustomDdl" + RANDOM_SUFFIX;
 
     public static final String CUSTOM_DDL_NAME_2 = "UT_CustomDdl_2" + RANDOM_SUFFIX;
@@ -281,6 +294,10 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
     public static final String DESCRIPTION = "UT_Description_1_" + RANDOM_SUFFIX;
 
     public static final String DESCRIPTION_2 = "UT_Description_2_" + RANDOM_SUFFIX;
+
+    public static final String DESCRIPTION_SUGGESTION = "UT_Description_Suggestion_1_" + RANDOM_SUFFIX;
+
+    public static final String DESCRIPTION_SUGGESTION_2 = "UT_Description_Suggestion_2_" + RANDOM_SUFFIX;
 
     public static final boolean DISABLE_COLUMN_FIELDS = false;
 
@@ -320,9 +337,9 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String EMPTY_STRING = "";
 
-    public static final String EMR_CLUSTER_DEFINITION_NAME = "UT_EMR_CLUSTER_DFN" + RANDOM_SUFFIX;
+    public static final String EMR_CLUSTER_DEFINITION_NAME = "UT_EmrClusterDefinitionName_1_" + RANDOM_SUFFIX;
 
-    public static final String EMR_CLUSTER_DEFINITION_NAME_2 = "UT_EMR_CLUSTER_DFN_2" + RANDOM_SUFFIX;
+    public static final String EMR_CLUSTER_DEFINITION_NAME_2 = "UT_EmrClusterDefinitionName_2_" + RANDOM_SUFFIX;
 
     public static final String EMR_CLUSTER_DEFINITION_XML_FILE_MINIMAL_CLASSPATH = "classpath:testEmrClusterDefinitionMinimal.xml";
 
@@ -356,6 +373,8 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final Integer FIFTH_FORMAT_VERSION = 4;
 
+    public static final Boolean FILTER_ON_RETENTION_EXPIRATION = true;
+
     public static final String FIRST_COLUMN_DATA_TYPE = "TINYINT";
 
     public static final String FIRST_COLUMN_NAME = "COLUMN001";
@@ -368,9 +387,17 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String FORMAT_DESCRIPTION_3 = "UT_Format_3_" + RANDOM_SUFFIX;
 
+    public static final String FORMAT_DOCUMENT_SCHEMA = "UT_DocumentSchema_1_" + RANDOM_SUFFIX;
+
+    public static final String FORMAT_DOCUMENT_SCHEMA_2 = "UT_DocumentSchema_2_" + RANDOM_SUFFIX;
+
+    public static final String FORMAT_DOCUMENT_SCHEMA_3 = "UT_DocumentSchema_3_" + RANDOM_SUFFIX;
+
     public static final String FORMAT_FILE_TYPE_CODE = "UT_FileType" + RANDOM_SUFFIX;
 
     public static final String FORMAT_FILE_TYPE_CODE_2 = "UT_FileType_2" + RANDOM_SUFFIX;
+
+    public static final String FORMAT_FILE_TYPE_CODE_3 = "UT_FileType_3" + RANDOM_SUFFIX;
 
     public static final String FORMAT_FILE_TYPE_DESCRIPTION = "UT_Description of " + FORMAT_FILE_TYPE_CODE;
 
@@ -462,6 +489,8 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String JSON_STRING = "UT_JsonString_" + RANDOM_SUFFIX;
 
+    public static final String KDC_ADMIN_PASSWORD = "UT_KdcAdminPassword" + RANDOM_SUFFIX;
+
     public static final String KEY = "UT_Key_" + RANDOM_SUFFIX;
 
     public static final Boolean LATEST_VERSION_FLAG_SET = true;
@@ -541,6 +570,8 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final List<AttributeDefinition> NO_ATTRIBUTE_DEFINITIONS = new ArrayList<>();
 
+    public static final List<AttributeValueFilter> NO_ATTRIBUTE_VALUE_FILTERS = new ArrayList<>();
+
     public static final String NO_AWS_ACCESS_KEY = null;
 
     public static final String NO_AWS_SECRET_KEY = null;
@@ -587,7 +618,13 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final Set<String> NO_FIELDS = new HashSet<>();
 
+    public static final Boolean NO_FILTER_ON_LATEST_VALID_VERSION = false;
+
+    public static final Boolean NO_FILTER_ON_RETENTION_EXPIRATION = false;
+
     public static final String NO_FORMAT_DESCRIPTION = null;
+
+    public static final String NO_FORMAT_DOCUMENT_SCHEMA = null;
 
     public static final String NO_FORMAT_FILE_TYPE_CODE = null;
 
@@ -641,9 +678,13 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String NO_PARTITION_KEY_GROUP = null;
 
+    public static final List<PartitionValueFilter> NO_PARTITION_VALUE_FILTERS = new ArrayList<>();
+
     public static final String NO_PASSWORD = null;
 
     public static final Boolean NO_PUBLISH_ATTRIBUTE = false;
+
+    public static final RegistrationDateRangeFilter NO_REGISTRATION_DATE_RANGE_FILTER = null;
 
     public static final XMLGregorianCalendar NO_RESTORE_EXPIRATION_ON = null;
 
@@ -726,7 +767,11 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final Integer READ_TIMEOUT = (int) (Math.random() * (Short.MAX_VALUE << 1));
 
+    public static final String REALM = "UT_Realm_" + RANDOM_SUFFIX;
+
     public static final String REASON = "UT_Reason_1_" + RANDOM_SUFFIX;
+
+    public static final Integer RETENTION_PERIOD_DAYS = (int) (Math.random() * (Short.MAX_VALUE << 1));
 
     public static final String S3_ATTRIBUTE_NAME_BUCKET_NAME = "UT_S3_Attribute_Name_Bucket_Name_" + RANDOM_SUFFIX;
 
@@ -831,15 +876,15 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final Integer SECOND_VERSION = 1;
 
-    public static final String SECURITY_FUNCTION = "FN_UT_SECURITY_FUNCTION_1_" + RANDOM_SUFFIX;
+    public static final String SECURITY_FUNCTION = "UT_SecurityFunction_1_" + RANDOM_SUFFIX;
 
-    public static final String SECURITY_FUNCTION_2 = "FN_UT_SECURITY_FUNCTION_2_" + RANDOM_SUFFIX;
+    public static final String SECURITY_FUNCTION_2 = "UT_SecurityFunction_2_" + RANDOM_SUFFIX;
 
-    public static final String SECURITY_FUNCTION_3 = "FN_UT_SECURITY_FUNCTION_3_" + RANDOM_SUFFIX;
+    public static final String SECURITY_FUNCTION_3 = "UT_SecurityFunction_3_" + RANDOM_SUFFIX;
 
-    public static final String SECURITY_ROLE_1 = "FN_UT_SECURITY_ROLE_A_" + RANDOM_SUFFIX;
+    public static final String SECURITY_ROLE = "UT_SecurityRole_1_" + RANDOM_SUFFIX;
 
-    public static final String SECURITY_ROLE_2 = "FN_UT_SECURITY_ROLE_B_" + RANDOM_SUFFIX;
+    public static final String SECURITY_ROLE_2 = "UT_SecurityRole_2_" + RANDOM_SUFFIX;
 
     public static final Boolean SELECT_ONLY_AVAILABLE_STORAGE_UNITS = true;
 
@@ -995,6 +1040,8 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     public static final String TAG_TYPE_CODE = "UT_TagTypeCode_1_" + RANDOM_SUFFIX;
 
+    public static final String TAG_TYPE_CODE_2 = "UT_TagTypeCode_2_" + RANDOM_SUFFIX;
+
     public static final long TAG_TYPE_COUNT = 240;
 
     public static final String TAG_TYPE_DESCRIPTION = "UT_TagTypeDescription_1_" + RANDOM_SUFFIX;
@@ -1051,6 +1098,8 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
     public static final String USER_ID_2 = "UT_User_Id_2_" + RANDOM_SUFFIX;
 
     public static final String USER_ID_3 = "UT_User_Id_3_" + RANDOM_SUFFIX;
+
+    public static final String USER_ID_4 = "UT_User_Id_4_" + RANDOM_SUFFIX;
 
     public static final String USER_JOB_TITLE = "UT_User_Job_Title_" + RANDOM_SUFFIX;
 
@@ -1114,6 +1163,18 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
 
     @Autowired
     protected BusinessObjectDefinitionDaoTestHelper businessObjectDefinitionDaoTestHelper;
+
+    @Autowired
+    protected BusinessObjectDefinitionDescriptionSuggestionDao businessObjectDefinitionDescriptionSuggestionDao;
+
+    @Autowired
+    protected BusinessObjectDefinitionDescriptionSuggestionDaoTestHelper businessObjectDefinitionDescriptionSuggestionDaoTestHelper;
+
+    @Autowired
+    protected BusinessObjectDefinitionDescriptionSuggestionStatusDao businessObjectDefinitionDescriptionSuggestionStatusDao;
+
+    @Autowired
+    protected BusinessObjectDefinitionDescriptionSuggestionStatusDaoTestHelper businessObjectDefinitionDescriptionSuggestionStatusDaoTestHelper;
 
     @Autowired
     protected BusinessObjectDefinitionSubjectMatterExpertDao businessObjectDefinitionSubjectMatterExpertDao;
@@ -1297,10 +1358,19 @@ public abstract class AbstractDaoTest extends AbstractCoreTest
     protected SecurityFunctionDao securityFunctionDao;
 
     @Autowired
+    protected SecurityFunctionDaoTestHelper securityFunctionDaoTestHelper;
+
+    @Autowired
     protected SecurityRoleDao securityRoleDao;
 
     @Autowired
     protected SecurityRoleDaoTestHelper securityRoleDaoTestHelper;
+
+    @Autowired
+    protected SecurityRoleFunctionDao securityRoleFunctionDao;
+
+    @Autowired
+    protected SecurityRoleFunctionDaoTestHelper securityRoleFunctionDaoTestHelper;
 
     @Autowired
     protected SnsDao snsDao;
