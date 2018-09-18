@@ -88,25 +88,6 @@ public class HerdFileUtilsTest extends AbstractCoreTest
         }
     }
 
-    @Test
-    public void testVerifyFileExistsAndReadableFileNotReadable() throws IOException
-    {
-        File testFile = createLocalFile(localTempPath.toString(), "SOME_FILE", FILE_SIZE_1_KB);
-
-        if (testFile.setReadable(false))
-        {
-            try
-            {
-                HerdFileUtils.verifyFileExistsAndReadable(testFile);
-                fail("Should throw an IllegalArgumentException when file is not readable.");
-            }
-            catch (IllegalArgumentException e)
-            {
-                assertEquals(String.format("Unable to read file \"%s\". Check permissions.", testFile.getName()), e.getMessage());
-            }
-        }
-    }
-
     /**
      * Cleans up a local test directory by deleting a test file.
      *
